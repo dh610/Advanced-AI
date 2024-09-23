@@ -27,5 +27,6 @@ parser.add_argument('--dehaze_dir', type=str, default='data/Train/Dehaze/',
 parser.add_argument('--output_path', type=str, default="output/", help='output save path')
 parser.add_argument('--ckpt_path', type=str, default="ckpt/Denoise/", help='checkpoint save path')
 
-options = parser.parse_args()
+#options = parser.parse_args()
+options, _ = parser.parse_known_args()
 options.batch_size = len(options.de_type)
