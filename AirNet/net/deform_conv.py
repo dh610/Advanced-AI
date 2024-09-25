@@ -63,9 +63,10 @@ class DCN_layer(nn.Module):
         mask = torch.sigmoid(mask)
 
         # modify
-        print(self.padding)
+        self.padding = _pair(self.padding)
+        self.dilation = _pair(self.dilation)
 
-        return deform_conv2d(input_feat.contiguous(), offset, self.weight, self.bias, self.padding, mask)
+        return deform_conv2d(input_feat.contiguous(), offset, self.weight, self.bias, self.padding, self.dilation, mask)
 
         '''
         return modulated_deform_conv2d(input_feat.contiguous(), offset, mask, self.weight, self.bias, self.stride,
