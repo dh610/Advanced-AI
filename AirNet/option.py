@@ -12,7 +12,7 @@ parser.add_argument('--lr', type=float, default=1e-3, help='learning rate of enc
 parser.add_argument('--de_type', type=list, default=['denoise_15', 'denoise_25', 'denoise_50', 'derain', 'dehaze'],
                     help='which type of degradations is training and testing for.')
 '''
-parser.add_argument('--de_type', type=list, default=['derain', 'dehaze'],
+parser.add_argument('--de_type', type=list, default=['derain'],
                     help='which type of degradations is training and testing for.')
 
 parser.add_argument('--patch_size', type=int, default=128, help='patcphsize of input.')
