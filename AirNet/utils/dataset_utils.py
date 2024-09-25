@@ -218,8 +218,8 @@ class DerainDehazeDataset(Dataset):
     def _init_input_ids(self):
         if self.task_idx == 0:
             self.ids = []
-            name_list = os.listdir(self.args.derain_path + 'input/')
-            self.ids += [self.args.derain_path + 'input/' + id_ for id_ in name_list]
+            name_list = os.listdir(self.args.derain_path + 'rainy/')
+            self.ids += [self.args.derain_path + 'rainy/' + id_ for id_ in name_list]
         elif self.task_idx == 1:
             self.ids = []
             name_list = os.listdir(self.args.dehaze_path + 'rainy/')
