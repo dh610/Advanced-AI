@@ -63,8 +63,7 @@ class DCN_layer(nn.Module):
         mask = torch.sigmoid(mask)
 
         # modify
-        print(type(self.dilation))
-        print(self.dilation)
+        print(self.padding)
 
         return deform_conv2d(input_feat.contiguous(), offset, self.weight, self.bias, self.padding, mask)
 
