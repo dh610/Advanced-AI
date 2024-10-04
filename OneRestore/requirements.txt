@@ -1,0 +1,10 @@
+pillow
+numpy
+scikit-image
+pandas
+einops
+thop
+fasttext
+opencv-python
+h5py
+matplotlib

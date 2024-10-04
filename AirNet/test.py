@@ -83,7 +83,7 @@ if __name__ == '__main__':
         opt.batch_size = 3
         ckpt_path = opt.ckpt_path + 'Denoise.pth'
     elif opt.mode == 1:
-        opt.batch_size = 1
+        opt.batch_size = 8
         ckpt_path = opt.ckpt_path + 'Derain.pth'
     elif opt.mode == 2:
         opt.batch_size = 1
