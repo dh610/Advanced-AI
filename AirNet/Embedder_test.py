@@ -13,8 +13,9 @@ transform_resize = transforms.Compose([
         ]) 
 
 def main(args):
+    embedder_model_path = '../../OneRestore/chkpts/embedder_model.tar'
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    embedder = load_embedder_ckpt(device, freeze_model=True, ckpt_name=args.embedder_model_path)
+    embedder = load_embedder_ckpt(device, freeze_model=True, ckpt_name=embedder_model_path)
     for arg in args.arguments:
         with torch.no_grad():
             print(arg)
