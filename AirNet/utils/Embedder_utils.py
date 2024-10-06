@@ -15,8 +15,14 @@ def load_embedder_ckpt(device, freeze_model=True,
                                                     'haze_snow', 'low_haze_rain', 'low_haze_snow']):
     ckpt_name = '../../OneRestore/ckpts/embedder_model.tar'
 
-    print('==> Initialize Embedder model.')
+    if torch.cuda.is_available():
+        model_info = torch.load(ckpt_name)
+    else:
+        model_info = torch.load(ckpt_name, map_location=torch.device('cpu'))
+
+    print('==> loading existing Embedder model:', ckpt_name)
     model = Embedder(combine_type)
+    model.load_state_dict(model_info)
     model.to("cuda" if torch.cuda.is_available() else "cpu")
 
     if freeze_model:
