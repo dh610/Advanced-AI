@@ -6,5 +6,6 @@
 *.pth
 *.mat
 *.npy
+*.tar
 .DS_Store
 
