@@ -148,7 +148,7 @@ def initialize_wordembedding_matrix(name, vocab):
 
     for wordemb in wordembs:
         if wordemb == 'glove':
-            wordemb_ = load_word_embeddings(f'./utils/glove.6B.300d.txt', vocab)
+            wordemb_ = load_word_embeddings(f'../OneRestore/utils/glove.6B.300d.txt', vocab)
         if result is None:
             result = wordemb_
         else:
