@@ -51,9 +51,9 @@ if __name__ == '__main__':
             embedding_vectors = []
 
             de_id = de_id.unsqueeze(1)
-            print(de_id.shape)
-            sys.exit(0)
+
             cnt = 0
+
             embedding_vector = embedder(de_id, 'text_idx_encoder')
             print(embedding_vector.shape)
             sys.exit(0)
