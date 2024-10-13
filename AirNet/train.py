@@ -53,7 +53,7 @@ if __name__ == '__main__':
             embedding_vector = embedder(de_id, 'text_idx_encoder')
 
             if epoch < opt.epochs_encoder:
-                _, output, target, _ = net.E(x_query=degrad_patch_1, x_key=degrad_patch_2, text_embedding=embedding_vector)
+                _, output, target, _, _ = net.E(x_query=degrad_patch_1, x_key=degrad_patch_2, text_embedding=embedding_vector)
                 contrast_loss = CE(output, target)
                 loss = contrast_loss
             else:
