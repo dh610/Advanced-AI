@@ -50,7 +50,7 @@ if __name__ == '__main__':
 
             de_id = de_id.unsqueeze(1)
 
-            embedding_vector = embedder(id, 'text_idx_encoder')
+            embedding_vector = embedder(de_id, 'text_idx_encoder')
 
             print(embedding_vector.shape)
             sys.exit(0)
