@@ -2,34 +2,44 @@ from torch import nn
 from net.moco import MoCo
 
 class CrossAttentionBlock(nn.Module):
-    def __init__(self, img_dim, text_dim, out_dim):
+    def __init__(self, img_dim, text_dim, out_dim=256):
         super(CrossAttentionBlock, self).__init__()
-        # 이미지와 텍스트 임베딩을 out_dim 크기로 매핑
-        self.img_linear = nn.Linear(img_dim, out_dim)  # img_dim -> out_dim
-        self.text_linear = nn.Linear(text_dim, out_dim)  # text_dim -> out_dim
+        self.img_linear = nn.Linear(img_dim, out_dim)  # img_dim -> 256
+        self.text_linear = nn.Linear(text_dim, out_dim)  # text_dim -> 256
         self.attention = nn.MultiheadAttention(out_dim, num_heads=8)
+
+        # 원래 이미지 크기로 복원하는 Linear 레이어
+        self.output_linear = nn.Linear(out_dim, 3 * 128 * 128)
 
     def forward(self, img_feat, text_feat):
         batch_size = img_feat.size(0)
 
-        # 이미지 특징을 Flatten
-        img_feat_flat = img_feat.view(batch_size, -1)  # (batch_size, img_dim)
+        # Flatten 이미지 특징 (batch_size, img_dim)
+        img_feat_flat = img_feat.view(batch_size, -1)
+        print(f"Flattened img_feat shape: {img_feat_flat.shape}")
 
-        # 이미지와 텍스트를 out_dim 크기로 매핑
-        img_feat_proj = self.img_linear(img_feat_flat)  # (batch_size, out_dim)
-        text_feat_proj = self.text_linear(text_feat)  # (batch_size, out_dim)
+        # 이미지와 텍스트 임베딩 생성 (batch_size, out_dim)
+        img_feat_proj = self.img_linear(img_feat_flat)
+        text_feat_proj = self.text_linear(text_feat)
 
-        # 크로스 어텐션 수행
+        print(f"Projected img_feat shape: {img_feat_proj.shape}")
+        print(f"Projected text_feat shape: {text_feat_proj.shape}")
+
+        # Multihead Attention 수행 (batch_size, 1, out_dim)
         attn_output, attn_weights = self.attention(
-            img_feat_proj.unsqueeze(1),  # (batch_size, 1, out_dim)
-            text_feat_proj.unsqueeze(1),  # (batch_size, 1, out_dim)
-            text_feat_proj.unsqueeze(1)   # (batch_size, 1, out_dim)
+            img_feat_proj.unsqueeze(1),  # (batch_size, 1, 256)
+            text_feat_proj.unsqueeze(1),  # (batch_size, 1, 256)
+            text_feat_proj.unsqueeze(1)   # (batch_size, 1, 256)
         )
+        print(f"Attention output shape: {attn_output.shape}")
 
-        # 최종 출력 (batch_size, out_dim)
-        final_output = attn_output.squeeze(1)  # (batch_size, out_dim)
+        # Linear 변환으로 이미지 크기로 복원 (batch_size, 3 * 128 * 128)
+        restored_output = self.output_linear(attn_output)  # (batch_size, 1, 49152)
+        restored_output = restored_output.view(batch_size, 3, 128, 128)
 
-        return final_output, attn_weights
+        print(f"Restored output shape: {restored_output.shape}")
+
+        return restored_output, attn_weights
 
 class ResBlock(nn.Module):
     def __init__(self, in_feat, out_feat, stride=1):
@@ -81,7 +91,7 @@ class CBDE(nn.Module):
 
         dim = 256
 
-        self.cross_attention = CrossAttentionBlock(img_dim=3*128*128, text_dim=embedder_out_dim, out_dim=256)
+        self.cross_attention = CrossAttentionBlock(img_dim=3*128*128, text_dim=embedder_out_dim)
         # Encoder
         self.E = MoCo(base_encoder=ResEncoder, dim=dim, K=opt.batch_size * dim)
 
