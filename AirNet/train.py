@@ -54,7 +54,7 @@ if __name__ == '__main__':
             for id in de_id:
 
                 embedding_vector = [0] * embedder.out_dim
-                print(id)
+                print(id.item())
                 sys.exit(0)
 
                 if cnt == 0:
