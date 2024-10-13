@@ -52,17 +52,14 @@ if __name__ == '__main__':
 
             embedding_vector = embedder(de_id, 'text_idx_encoder')
 
-            print(embedding_vector.shape)
-            sys.exit(0)
-
-            cnt = (cnt + 1) % 4
-
             if epoch < opt.epochs_encoder:
-                _, output, target, _ = net.E(x_query=degrad_patch_1, x_key=degrad_patch_2, text_embedding=embedding_vectors)
+                _, output, target, _ = net.E(x_query=degrad_patch_1, x_key=degrad_patch_2, text_embedding=embedding_vector)
                 contrast_loss = CE(output, target)
                 loss = contrast_loss
             else:
-                restored, output, target = net(x_query=degrad_patch_1, x_key=degrad_patch_2, text_embedding=text_embedding)
+                if epoch % 4 != 0:
+                    embedding_vector.zero_()
+                restored, output, target = net(x_query=degrad_patch_1, x_key=degrad_patch_2, text_embedding=embedding_vector)
                 contrast_loss = CE(output, target)
                 l1_loss = l1(restored, clean_patch_1)
                 loss = l1_loss + 0.1 * contrast_loss
