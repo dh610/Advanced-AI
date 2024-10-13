@@ -172,7 +172,7 @@ class TrainDataset(Dataset):
     def __getitem__(self, _):
         de_id = self.de_dict[self.de_type[self.de_temp]]
 
-        if self.de_id == 0:
+        if de_id == 0:
             degrad_img = crop_img(np.array(Image.open(self.hazy_ids[self.haze_counter]).convert('RGB')), base=16)
             clean_name = self._get_gt_name(self.hazy_ids[self.haze_counter])
             clean_img = crop_img(np.array(Image.open(clean_name).convert('RGB')), base=16)
@@ -181,7 +181,7 @@ class TrainDataset(Dataset):
             if self.haze_counter == 0:
                 random.shuffle(self.hazy_ids)
 
-        elif self.de_id == 1:
+        elif de_id == 1:
             degrad_img = crop_img(np.array(Image.open(self.rain_ids[self.rain_counter]).convert('RGB')), base=16)
             clean_name = self._get_gt_name(self.rain_ids[self.rain_counter])
             clean_img = crop_img(np.array(Image.open(clean_name).convert('RGB')), base=16)
@@ -190,7 +190,7 @@ class TrainDataset(Dataset):
             if self.rain_counter == 0:
                 random.shuffle(self.rain_ids)
 
-        elif self.de_id == 2:
+        elif de_id == 2:
             degrad_img = crop_img(np.array(Image.open(self.low_ids[self.low_counter]).convert('RGB')), base=16)
             clean_name = self._get_gt_name(self.low_ids[self.low_counter])
             clean_img = crop_img(np.array(Image.open(clean_name).convert('RGB')), base=16)
@@ -199,7 +199,7 @@ class TrainDataset(Dataset):
             if self.low_counter == 0:
                 random.shuffle(self.low_ids)
 
-        elif self.de_id == 3:
+        elif de_id == 3:
             degrad_img = crop_img(np.array(Image.open(self.hazy_rain_ids[self.hr_counter]).convert('RGB')), base=16)
             clean_name = self._get_gt_name(self.hazy_rain_ids[self.hr_counter])
             clean_img = crop_img(np.array(Image.open(clean_name).convert('RGB')), base=16)
@@ -208,7 +208,7 @@ class TrainDataset(Dataset):
             if self.hr_counter == 0:
                 random.shuffle(self.hazy_rain_ids)
 
-        elif self.de_id == 4:
+        elif de_id == 4:
             degrad_img = crop_img(np.array(Image.open(self.low_rain_ids[self.lr_counter]).convert('RGB')), base=16)
             clean_name = self._get_gt_name(self.low_rain_ids[self.lr_counter])
             clean_img = crop_img(np.array(Image.open(clean_name).convert('RGB')), base=16)
@@ -217,7 +217,7 @@ class TrainDataset(Dataset):
             if self.lr_counter == 0:
                 random.shuffle(self.low_rain_ids)
 
-        elif self.de_id == 5:
+        elif de_id == 5:
             degrad_img = crop_img(np.array(Image.open(self.low_haze_ids[self.lh_counter]).convert('RGB')), base=16)
             clean_name = self._get_gt_name(self.low_haze_ids[self.lh_counter])
             clean_img = crop_img(np.array(Image.open(clean_name).convert('RGB')), base=16)
@@ -226,7 +226,7 @@ class TrainDataset(Dataset):
             if self.lh_counter == 0:
                 random.shuffle(self.low_haze_ids)
 
-        elif self.de_id == 6:
+        elif de_id == 6:
             degrad_img = crop_img(np.array(Image.open(self.low_haze_rain_ids[self.lhr_counter]).convert('RGB')), base=16)
             clean_name = self._get_gt_name(self.low_haze_rain_ids[self.lhr_counter])
             clean_img = crop_img(np.array(Image.open(clean_name).convert('RGB')), base=16)
