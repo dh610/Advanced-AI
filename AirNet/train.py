@@ -29,7 +29,7 @@ if __name__ == '__main__':
                              drop_last=True, num_workers=opt.num_workers)
 
     embedder = load_embedder_ckpt(opt.cuda, freeze_model=True)
-    zero_vector = torch.zeros(embedder.out_dim)
+
     # Network Construction
     net = AirNet(opt, embedder.out_dim).cuda()
     net.train()
@@ -39,7 +39,6 @@ if __name__ == '__main__':
     CE = nn.CrossEntropyLoss().cuda()
     l1 = nn.L1Loss().cuda()
 
-    cnt = 0
     # Start training
     print('Start training...')
     for epoch in range(opt.epochs):
@@ -49,13 +48,20 @@ if __name__ == '__main__':
 
             optimizer.zero_grad()
 
-            text_embedding = zero_vector
+            embedding_vectors = []
 
-            if cnt == 0:
-                text_embedding, _, [text] = embedder(de_id, 'text_idx_encoder')
+            cnt = 0
+            for id in de_id:
+                embedding_vector = [0] * embedder.out_dim
+                if cnt == 0:
+                    embedding_vector, _, [text] = embedder(id, 'text_idx_encoder')
+                embedding_vectors.append(embedding_vector)
+                cnt = (cnt + 1) % 4
+
+            embedding_vectors = torch.stack(embedding_vectors)
 
             if epoch < opt.epochs_encoder:
-                _, output, target, _ = net.E(x_query=degrad_patch_1, x_key=degrad_patch_2, text_embedding=text_embedding)
+                _, output, target, _ = net.E(x_query=degrad_patch_1, x_key=degrad_patch_2, text_embedding=embedding_vectors)
                 contrast_loss = CE(output, target)
                 loss = contrast_loss
             else:
@@ -63,8 +69,6 @@ if __name__ == '__main__':
                 contrast_loss = CE(output, target)
                 l1_loss = l1(restored, clean_patch_1)
                 loss = l1_loss + 0.1 * contrast_loss
-
-            cnt = (cnt + 1) % 4
 
             # backward
             loss.backward()
