@@ -22,6 +22,7 @@ de_arr ={
 if __name__ == '__main__':
     torch.cuda.set_device(opt.cuda)
     subprocess.check_output(['mkdir', '-p', opt.ckpt_path])
+    print(opt)
 
     trainset = TrainDataset(opt)
     trainloader = DataLoader(trainset, batch_size=opt.batch_size, pin_memory=True, shuffle=True,

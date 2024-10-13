@@ -27,7 +27,6 @@ class TrainDataset(Dataset):
         self.D = Degradation(args)
         self.de_temp = 0
         self.de_type = self.args.de_type
-        print(self.de_type)
 
         self.image_extensions = ['.jpg', '.jpeg', '.png', '.bmp', '.gif']
         self.de_dict = {                        \
