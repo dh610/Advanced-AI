@@ -74,16 +74,20 @@ class CBDE(nn.Module):
         self.E = MoCo(base_encoder=ResEncoder, dim=dim, K=opt.batch_size * dim)
 
     def forward(self, x_query, x_key, text_embedding):
+        print(f"x_query shape: {x_query.shape}")
+        print(f"x_key shape: {x_key.shape}")
 
         x_query_attn, _ = self.cross_attention(x_query, text_embedding)
         x_key_attn, _ = self.cross_attention(x_key, text_embedding)
         print(f"x_query shape: {x_query_attn.shape}")
         print(f"x_key shape: {x_key_attn.shape}")
-        import sys
-        sys.exit(0)
 
         combined_features_query = x_query + x_query_attn
         combined_features_key = x_key + x_key_attn
+        print(f"x_query shape: {combined_features_query.shape}")
+        print(f"x_key shape: {combined_features_key.shape}")
+        import sys
+        sys.exit(0)
 
         if self.training:
             # degradation-aware represenetion learning
