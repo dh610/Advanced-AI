@@ -32,7 +32,7 @@ if __name__ == '__main__':
 
     # Network Construction
     net = AirNet(opt, embedder.out_dim).cuda()
-    net, start_epoch = load_latest_ckpt(net, opt.chkpt_path)
+    net, start_epoch = load_latest_ckpt(net, opt.ckpt_path)
     net.train()
     print('Start at', start_epoch)
 
