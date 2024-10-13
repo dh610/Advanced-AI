@@ -50,11 +50,10 @@ if __name__ == '__main__':
 
             embedding_vectors = []
 
+            print(de_id.shape)
+            sys.exit(0)
             cnt = 0
-            de_id_batch = de_id[:4]
-
-            de_id_batch = torch.stack([id.unsqueeze(0) for id in de_id_batch])
-            embedding_vector = embedder(de_id_batch, 'text_idx_encoder')
+            embedding_vector = embedder(de_id, 'text_idx_encoder')
             print(embedding_vector.shape)
             sys.exit(0)
             for id in de_id:
