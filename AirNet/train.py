@@ -54,6 +54,8 @@ if __name__ == '__main__':
             for id in de_id:
 
                 embedding_vector = [0] * embedder.out_dim
+                print(id.shape[0])
+                sys.exit(0)
 
                 if cnt == 0:
                     embedding_vector, _, [text] = embedder(id, 'text_idx_encoder')
