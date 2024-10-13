@@ -14,14 +14,10 @@ class CrossAttentionBlock(nn.Module):
 
         # 이미지 특징을 Flatten
         img_feat_flat = img_feat.view(batch_size, -1)  # (batch_size, img_dim)
-        print(f"Flattened img_feat shape: {img_feat_flat.shape}")
 
         # 이미지와 텍스트를 out_dim 크기로 매핑
         img_feat_proj = self.img_linear(img_feat_flat)  # (batch_size, out_dim)
         text_feat_proj = self.text_linear(text_feat)  # (batch_size, out_dim)
-
-        print(f"Projected img_feat shape: {img_feat_proj.shape}")
-        print(f"Projected text_feat shape: {text_feat_proj.shape}")
 
         # 크로스 어텐션 수행
         attn_output, attn_weights = self.attention(
@@ -29,11 +25,9 @@ class CrossAttentionBlock(nn.Module):
             text_feat_proj.unsqueeze(1),  # (batch_size, 1, out_dim)
             text_feat_proj.unsqueeze(1)   # (batch_size, 1, out_dim)
         )
-        print(f"Attention output shape: {attn_output.shape}")
 
         # 최종 출력 (batch_size, out_dim)
         final_output = attn_output.squeeze(1)  # (batch_size, out_dim)
-        print(f"Final output shape for MoCo: {final_output.shape}")
 
         return final_output, attn_weights
 
@@ -92,18 +86,14 @@ class CBDE(nn.Module):
         self.E = MoCo(base_encoder=ResEncoder, dim=dim, K=opt.batch_size * dim)
 
     def forward(self, x_query, x_key, text_embedding):
-        print(f"x_query shape: {x_query.shape}")
-        print(f"x_key shape: {x_key.shape}")
 
         x_query_attn, _ = self.cross_attention(x_query, text_embedding)
         x_key_attn, _ = self.cross_attention(x_key, text_embedding)
-        print(f"x_query shape: {x_query_attn.shape}")
-        print(f"x_key shape: {x_key_attn.shape}")
 
-        #combined_features_query = x_query + x_query_attn
-        #combined_features_key = x_key + x_key_attn
-        #print(f"x_query shape: {combined_features_query.shape}")
-        #print(f"x_key shape: {combined_features_key.shape}")
+        combined_features_query = x_query + x_query_attn
+        combined_features_key = x_key + x_key_attn
+        print(f"x_query shape: {combined_features_query.shape}")
+        print(f"x_key shape: {combined_features_key.shape}")
 
         if self.training:
             # degradation-aware represenetion learning
