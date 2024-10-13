@@ -9,9 +9,13 @@ class CrossAttentionBlock(nn.Module):
         self.attention = nn.MultiheadAttention(out_dim, num_heads=8)
 
     def forward(self, img_feat, text_feat):
+        batch_size = img_feat.size(0)
+        img_feat_flat = img_feat.view(batch_size, -1)
         print(f"img_feat shape: {img_feat.shape}")
         print(f"text_feat shape: {text_feat.shape}")
-        img_feat_proj = self.img_linear(img_feat)  # Image feature change
+        import sys
+        sys.exit(0)
+        img_feat_proj = self.img_linear(img_feat_flat)  # Image feature change
         text_feat_proj = self.text_linear(text_feat)  # Text embedding change
 
         # Cross-Attention
