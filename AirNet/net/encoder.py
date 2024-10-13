@@ -16,14 +16,10 @@ class CrossAttentionBlock(nn.Module):
 
         # Flatten 이미지 특징 (batch_size, img_dim)
         img_feat_flat = img_feat.view(batch_size, -1)
-        print(f"Flattened img_feat shape: {img_feat_flat.shape}")
 
         # 이미지와 텍스트 임베딩 생성 (batch_size, out_dim)
         img_feat_proj = self.img_linear(img_feat_flat)
         text_feat_proj = self.text_linear(text_feat)
-
-        print(f"Projected img_feat shape: {img_feat_proj.shape}")
-        print(f"Projected text_feat shape: {text_feat_proj.shape}")
 
         # Multihead Attention 수행 (batch_size, 1, out_dim)
         attn_output, attn_weights = self.attention(
@@ -31,13 +27,11 @@ class CrossAttentionBlock(nn.Module):
             text_feat_proj.unsqueeze(1),  # (batch_size, 1, 256)
             text_feat_proj.unsqueeze(1)   # (batch_size, 1, 256)
         )
-        print(f"Attention output shape: {attn_output.shape}")
 
         # Linear 변환으로 이미지 크기로 복원 (batch_size, 3 * 128 * 128)
         restored_output = self.output_linear(attn_output)  # (batch_size, 1, 49152)
         restored_output = restored_output.view(batch_size, 3, 128, 128)
 
-        print(f"Restored output shape: {restored_output.shape}")
 
         return restored_output, attn_weights
 
@@ -99,24 +93,16 @@ class CBDE(nn.Module):
 
         x_query_attn, _ = self.cross_attention(x_query, text_embedding)
         x_key_attn, _ = self.cross_attention(x_key, text_embedding)
-        print(f"x_query shape: {x_query_attn.shape}")
-        print(f"x_key shape: {x_key_attn.shape}")
 
         combined_features_query = x_query + x_query_attn
         combined_features_key = x_key + x_key_attn
-        print(f"x_query shape: {combined_features_query.shape}")
-        print(f"x_key shape: {combined_features_key.shape}")
 
         if self.training:
             # degradation-aware represenetion learning
-            fea, logits, labels, inter = self.E(x_query, x_key)
-            print(f"x_query shape: {x_query.shape}")
-            print(f"x_query shape: {x_key.shape}")
-            import sys
-            sys.exit(0)
+            fea, logits, labels, inter = self.E(combined_features_query, combined_features_key)
 
-            return fea, logits, labels, inter, x_query
+            return fea, logits, labels, inter, combined_features_query
         else:
             # degradation-aware represenetion learning
-            fea, inter = self.E(x_query, x_query)
-            return fea, inter, x_query
+            fea, inter = self.E(combined_features_query, combined_features_query)
+            return fea, inter, combined_features_query
