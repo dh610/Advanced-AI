@@ -58,7 +58,7 @@ if __name__ == '__main__':
                 id = id.unsqueeze(0)
 
                 if cnt == 0:
-                    embedding_vector, _, [text] = embedder(id, 'text_idx_encoder')
+                    embedding_vector = embedder(id, 'text_idx_encoder')
 
                 embedding_vectors.append(embedding_vector)
 
