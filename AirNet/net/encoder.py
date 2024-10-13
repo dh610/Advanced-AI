@@ -9,6 +9,8 @@ class CrossAttentionBlock(nn.Module):
         self.attention = nn.MultiheadAttention(out_dim, num_heads=8)
 
     def forward(self, img_feat, text_feat):
+        print(f"img_feat shape: {img_feat.shape}")
+        print(f"text_feat shape: {text_feat.shape}")
         img_feat_proj = self.img_linear(img_feat)  # Image feature change
         text_feat_proj = self.text_linear(text_feat)  # Text embedding change
 
@@ -71,6 +73,9 @@ class CBDE(nn.Module):
         self.E = MoCo(base_encoder=ResEncoder, dim=dim, K=opt.batch_size * dim)
 
     def forward(self, x_query, x_key, text_embedding):
+        print(f"x_query shape: {x_query.shape}")
+        print(f"x_key shape: {x_key.shape}")
+        print(f"text_embedding shape: {text_embedding.shape}")
 
         x_query_attn, _ = self.cross_attention(x_query, text_embedding)
         x_key_attn, _ = self.cross_attention(x_key, text_embedding)
