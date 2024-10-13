@@ -59,6 +59,7 @@ if __name__ == '__main__':
 
                 if cnt == 0:
                     embedding_vector = embedder(id, 'text_idx_encoder')
+                print(embedding_vector.shape())
 
                 embedding_vectors.append(embedding_vector)
 
