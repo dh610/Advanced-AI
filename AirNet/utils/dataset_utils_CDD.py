@@ -170,7 +170,7 @@ class TrainDataset(Dataset):
         return gt_name
 
     def __getitem__(self, _):
-        de_id = self.de_dict[self.de_type[self.de_temp]]
+        de_id = self.de_temp
 
         if de_id == 0:
             degrad_img = crop_img(np.array(Image.open(self.hazy_ids[self.haze_counter]).convert('RGB')), base=16)
