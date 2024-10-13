@@ -82,19 +82,21 @@ class CBDE(nn.Module):
         print(f"x_query shape: {x_query_attn.shape}")
         print(f"x_key shape: {x_key_attn.shape}")
 
-        combined_features_query = x_query + x_query_attn
-        combined_features_key = x_key + x_key_attn
-        print(f"x_query shape: {combined_features_query.shape}")
-        print(f"x_key shape: {combined_features_key.shape}")
-        import sys
-        sys.exit(0)
+        #combined_features_query = x_query + x_query_attn
+        #combined_features_key = x_key + x_key_attn
+        #print(f"x_query shape: {combined_features_query.shape}")
+        #print(f"x_key shape: {combined_features_key.shape}")
 
         if self.training:
             # degradation-aware represenetion learning
-            fea, logits, labels, inter = self.E(combined_features_query, combined_features_key)
+            fea, logits, labels, inter = self.E(x_query, x_key)
+            print(f"x_query shape: {x_query.shape}")
+            print(f"x_query shape: {x_key.shape}")
+            import sys
+            sys.exit(0)
 
-            return fea, logits, labels, inter, combined_features_query
+            return fea, logits, labels, inter, x_query
         else:
             # degradation-aware represenetion learning
-            fea, inter = self.E(combined_features_query, combined_features_query)
-            return fea, inter, combined_features_query
+            fea, inter = self.E(x_query, x_query)
+            return fea, inter, x_query
