@@ -1,6 +1,20 @@
 from torch import nn
 from net.moco import MoCo
 
+class CrossAttentionBlock(nn.Module):
+    def __init__(self, img_dim, text_dim, out_dim):
+        super(CrossAttentionBlock, self).__init__()
+        self.img_linear = nn.Linear(img_dim, out_dim)
+        self.text_linear = nn.Linear(text_dim, out_dim)
+        self.attention = nn.MultiheadAttention(out_dim, num_heads=8)
+
+    def forward(self, img_feat, text_feat):
+        img_feat_proj = self.img_linear(img_feat)  # Image feature change
+        text_feat_proj = self.text_linear(text_feat)  # Text embedding change
+
+        # Cross-Attention
+        attn_output, attn_weights = self.attention(img_feat_proj.unsqueeze(1), text_feat_proj.unsqueeze(1), text_feat_proj.unsqueeze(1))
+        return attn_output.squeeze(1), attn_weights
 
 class ResBlock(nn.Module):
     def __init__(self, in_feat, out_feat, stride=1):
@@ -47,21 +61,29 @@ class ResEncoder(nn.Module):
 
 
 class CBDE(nn.Module):
-    def __init__(self, opt):
+    def __init__(self, opt, embedder_out_dim):
         super(CBDE, self).__init__()
 
         dim = 256
 
+        self.cross_attention = CrossAttentionBlock(img_dim=dim, text_dim=embedder_out_dim, out_dim=dim)
         # Encoder
         self.E = MoCo(base_encoder=ResEncoder, dim=dim, K=opt.batch_size * dim)
 
-    def forward(self, x_query, x_key):
+    def forward(self, x_query, x_key, text_embedding):
+
+        x_query_attn, _ = self.cross_attention(x_query, text_embedding)
+        x_key_attn, _ = self.cross_attention(x_key, text_embedding)
+
+        combined_features_query = x_query + x_query_attn
+        combined_features_key = x_key + x_key_attn
+
         if self.training:
             # degradation-aware represenetion learning
-            fea, logits, labels, inter = self.E(x_query, x_key)
+            fea, logits, labels, inter = self.E(combined_features_query, combined_features_key)
 
-            return fea, logits, labels, inter
+            return fea, logits, labels, inter, combined_features_query
         else:
             # degradation-aware represenetion learning
-            fea, inter = self.E(x_query, x_query)
-            return fea, inter
+            fea, inter = self.E(combined_features_query, combined_features_query)
+            return fea, inter, combined_features_query

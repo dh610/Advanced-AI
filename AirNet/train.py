@@ -6,10 +6,18 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 
-from utils.dataset_utils import TrainDataset
+from utils.dataset_utils_CDD import TrainDataset
 from net.model import AirNet
 
 from option import options as opt
+
+from utils.Embedder_utils import load_embedder_ckpt
+
+de_arr ={
+    'haze', 'rain', 'low',      \
+    'haze_rain', 'low_haze',    \
+    'low_rain', 'low_haze_rain' \
+}
 
 if __name__ == '__main__':
     torch.cuda.set_device(opt.cuda)
@@ -19,8 +27,10 @@ if __name__ == '__main__':
     trainloader = DataLoader(trainset, batch_size=opt.batch_size, pin_memory=True, shuffle=True,
                              drop_last=True, num_workers=opt.num_workers)
 
+    embedder = load_embedder_ckpt(opt.cuda, freeze_model=True)
+    zero_vector = torch.zeros(embedder.out_dim)
     # Network Construction
-    net = AirNet(opt).cuda()
+    net = AirNet(opt, embedder.out_dim).cuda()
     net.train()
 
     # Optimizer and Loss
@@ -28,6 +38,7 @@ if __name__ == '__main__':
     CE = nn.CrossEntropyLoss().cuda()
     l1 = nn.L1Loss().cuda()
 
+    cnt = 0
     # Start training
     print('Start training...')
     for epoch in range(opt.epochs):
@@ -37,15 +48,22 @@ if __name__ == '__main__':
 
             optimizer.zero_grad()
 
+            text_embedding = zero_vector
+
+            if cnt == 0:
+                text_embedding, _, [text] = embedder(de_arr[de_id],'text_encoder')
+
             if epoch < opt.epochs_encoder:
-                _, output, target, _ = net.E(x_query=degrad_patch_1, x_key=degrad_patch_2)
+                _, output, target, _ = net.E(x_query=degrad_patch_1, x_key=degrad_patch_2, text_embedding=text_embedding)
                 contrast_loss = CE(output, target)
                 loss = contrast_loss
             else:
-                restored, output, target = net(x_query=degrad_patch_1, x_key=degrad_patch_2)
+                restored, output, target = net(x_query=degrad_patch_1, x_key=degrad_patch_2, text_embedding=text_embedding)
                 contrast_loss = CE(output, target)
                 l1_loss = l1(restored, clean_patch_1)
                 loss = l1_loss + 0.1 * contrast_loss
+
+            cnt = (cnt + 1) % 4
 
             # backward
             loss.backward()
