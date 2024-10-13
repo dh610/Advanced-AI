@@ -4,7 +4,7 @@ from net.moco import MoCo
 class CrossAttentionBlock(nn.Module):
     def __init__(self, img_dim, text_dim, out_dim=3*128*128):
         super(CrossAttentionBlock, self).__init__()
-        # 이미지와 텍스트 특징을 out_dim 크기로 매핑
+
         self.img_linear = nn.Linear(img_dim, out_dim)
         self.text_linear = nn.Linear(text_dim, out_dim)
         self.attention = nn.MultiheadAttention(out_dim, num_heads=8)
@@ -12,7 +12,6 @@ class CrossAttentionBlock(nn.Module):
     def forward(self, img_feat, text_feat):
         batch_size = img_feat.size(0)
 
-        # Flatten 이미지 특징
         img_feat_flat = img_feat.view(batch_size, -1)  # (batch_size, img_dim)
         print(f"Flattened img_feat shape: {img_feat_flat.shape}")
 
@@ -30,9 +29,6 @@ class CrossAttentionBlock(nn.Module):
             text_feat_proj.unsqueeze(1)   # (batch_size, 1, out_dim)
         )
         print(f"Attention output shape: {attn_output.shape}")
-
-        # 차원 변환: (batch_size, 3*128*128)
-        attn_output = self.output_linear(attn_output.squeeze(1))  # (batch_size, 49152)
 
         # 최종 출력: (batch_size, 3, 128, 128)
         final_output = attn_output.view(batch_size, 3, 128, 128)
