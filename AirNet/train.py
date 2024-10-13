@@ -50,12 +50,9 @@ if __name__ == '__main__':
             optimizer.zero_grad()
 
             text_embedding = zero_vector
-            print(prompt)
-            sys.exit(0)
 
             if cnt == 0:
-                selected_texts = [de_arr[i] for i in de_id]
-                text_embedding, _, [text] = embedder(selected_texts,'text_encoder')
+                text_embedding, _, [text] = embedder(de_id, 'text_idx_encoder')
 
             if epoch < opt.epochs_encoder:
                 _, output, target, _ = net.E(x_query=degrad_patch_1, x_key=degrad_patch_2, text_embedding=text_embedding)
