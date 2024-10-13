@@ -89,6 +89,8 @@ class CBDE(nn.Module):
 
         x_query_attn, _ = self.cross_attention(x_query, text_embedding)
         x_key_attn, _ = self.cross_attention(x_key, text_embedding)
+        print(f"x_query shape: {x_query_attn.shape}")
+        print(f"x_key shape: {x_key_attn.shape}")
 
         combined_features_query = x_query + x_query_attn
         combined_features_key = x_key + x_key_attn
