@@ -2,27 +2,28 @@ from torch import nn
 from net.moco import MoCo
 
 class CrossAttentionBlock(nn.Module):
-    def __init__(self, img_dim, text_dim, out_dim=3*128*128):
+    def __init__(self, img_dim, text_dim, out_dim):
         super(CrossAttentionBlock, self).__init__()
-
-        self.img_linear = nn.Linear(img_dim, out_dim)
-        self.text_linear = nn.Linear(text_dim, out_dim)
+        # 이미지와 텍스트 임베딩을 out_dim 크기로 매핑
+        self.img_linear = nn.Linear(img_dim, out_dim)  # img_dim -> out_dim
+        self.text_linear = nn.Linear(text_dim, out_dim)  # text_dim -> out_dim
         self.attention = nn.MultiheadAttention(out_dim, num_heads=8)
 
     def forward(self, img_feat, text_feat):
         batch_size = img_feat.size(0)
 
+        # 이미지 특징을 Flatten
         img_feat_flat = img_feat.view(batch_size, -1)  # (batch_size, img_dim)
         print(f"Flattened img_feat shape: {img_feat_flat.shape}")
 
-        # 이미지와 텍스트를 임베딩
+        # 이미지와 텍스트를 out_dim 크기로 매핑
         img_feat_proj = self.img_linear(img_feat_flat)  # (batch_size, out_dim)
         text_feat_proj = self.text_linear(text_feat)  # (batch_size, out_dim)
 
         print(f"Projected img_feat shape: {img_feat_proj.shape}")
         print(f"Projected text_feat shape: {text_feat_proj.shape}")
 
-        # 크로스 어텐션
+        # 크로스 어텐션 수행
         attn_output, attn_weights = self.attention(
             img_feat_proj.unsqueeze(1),  # (batch_size, 1, out_dim)
             text_feat_proj.unsqueeze(1),  # (batch_size, 1, out_dim)
@@ -30,8 +31,8 @@ class CrossAttentionBlock(nn.Module):
         )
         print(f"Attention output shape: {attn_output.shape}")
 
-        # 최종 출력: (batch_size, 3, 128, 128)
-        final_output = attn_output.view(batch_size, 3, 128, 128)
+        # 최종 출력 (batch_size, out_dim)
+        final_output = attn_output.squeeze(1)  # (batch_size, out_dim)
         print(f"Final output shape for MoCo: {final_output.shape}")
 
         return final_output, attn_weights
