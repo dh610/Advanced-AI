@@ -12,7 +12,7 @@ from net.model import AirNet
 
 from option import options as opt
 
-from AirNet.utils.ckpt_utils import load_embedder_ckpt, load_latest_ckpt
+from utils.ckpt_utils import load_embedder_ckpt, load_latest_ckpt
 
 de_arr = [
     'haze', 'rain', 'low',      \
