@@ -34,6 +34,7 @@ if __name__ == '__main__':
     net = AirNet(opt, embedder.out_dim).cuda()
     net, start_epoch = load_latest_ckpt(net, opt.chkpt_path)
     net.train()
+    print('Start at', start_epoch)
 
     # Optimizer and Loss
     optimizer = optim.Adam(net.parameters(), lr=opt.lr)
