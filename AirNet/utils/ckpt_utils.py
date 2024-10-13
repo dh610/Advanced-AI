@@ -57,10 +57,8 @@ def load_latest_ckpt(net, ckpt_path):
 
     checkpoint = torch.load(os.path.join(ckpt_path, latest_checkpoint))
     print(checkpoint.keys())
-    import sys
-    sys.exit(0)
 
     checkpoint = torch.load(os.path.join(ckpt_path, latest_checkpoint))
-    net.load_state_dict(checkpoint['model_state_dict'])
+    net.load_state_dict(checkpoint)
 
     return net, latest_epoch 
