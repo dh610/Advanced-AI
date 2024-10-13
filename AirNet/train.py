@@ -50,6 +50,7 @@ if __name__ == '__main__':
 
             text_embedding = zero_vector
 
+            print(de_id)
             if cnt == 0:
                 text_embedding, _, [text] = embedder(de_arr[de_id],'text_encoder')
 
