@@ -53,7 +53,7 @@ if __name__ == '__main__':
             cnt = 0
             for id in de_id:
 
-                embedding_vector = [0] * embedder.out_dim
+                embedding_vector = torch.zeros(embedder.out_dim)
                 
                 id = id.unsqueeze(0)
 
