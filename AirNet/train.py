@@ -48,30 +48,14 @@ if __name__ == '__main__':
 
             optimizer.zero_grad()
 
-            embedding_vectors = []
-
             de_id = de_id.unsqueeze(1)
 
-            cnt = 0
+            embedding_vector = embedder(id, 'text_idx_encoder')
 
-            embedding_vector = embedder(de_id, 'text_idx_encoder')
             print(embedding_vector.shape)
             sys.exit(0)
-            for id in de_id:
 
-                embedding_vector = torch.zeros(embedder.out_dim)
-                
-                id = id.unsqueeze(0)
-
-                if cnt == 0:
-                    embedding_vector = embedder(id, 'text_idx_encoder')
-                print(embedding_vector.shape)
-
-                embedding_vectors.append(embedding_vector)
-
-                cnt = (cnt + 1) % 4
-
-            embedding_vectors = torch.stack(embedding_vectors)
+            cnt = (cnt + 1) % 4
 
             if epoch < opt.epochs_encoder:
                 _, output, target, _ = net.E(x_query=degrad_patch_1, x_key=degrad_patch_2, text_embedding=embedding_vectors)
