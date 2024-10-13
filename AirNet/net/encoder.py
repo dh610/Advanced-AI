@@ -87,7 +87,7 @@ class CBDE(nn.Module):
 
         dim = 256
 
-        self.cross_attention = CrossAttentionBlock(img_dim=3*128*128, text_dim=embedder_out_dim, out_dim=dim)
+        self.cross_attention = CrossAttentionBlock(img_dim=3*128*128, text_dim=embedder_out_dim, out_dim=3*128*128)
         # Encoder
         self.E = MoCo(base_encoder=ResEncoder, dim=dim, K=opt.batch_size * dim)
 
