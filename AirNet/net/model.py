@@ -11,7 +11,7 @@ class AirNet(nn.Module):
         self.R = DGRN(opt)
 
         # Encoder
-        self.E = CBDE(opt)
+        self.E = CBDE(opt, embedder_out_dim)
 
 
     def forward(self, x_query, x_key, text_embedding):
