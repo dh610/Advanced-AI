@@ -245,9 +245,7 @@ class TrainDataset(Dataset):
         if self.de_temp == 0:
             random.shuffle(self.de_type)
 
-        prompt = "hello world"
-
-        return [clean_name, de_id], degrad_patch_1, degrad_patch_2, clean_patch_1, clean_patch_2, prompt
+        return [clean_name, de_id], degrad_patch_1, degrad_patch_2, clean_patch_1, clean_patch_2
 
     def __len__(self):
         return 400 * len(self.args.de_type)
