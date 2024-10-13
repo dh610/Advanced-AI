@@ -12,7 +12,7 @@ from net.model import AirNet
 
 from option import options as opt
 
-from utils.Embedder_utils import load_embedder_ckpt
+from AirNet.utils.ckpt_utils import load_embedder_ckpt, load_latest_ckpt
 
 de_arr = [
     'haze', 'rain', 'low',      \
@@ -32,6 +32,7 @@ if __name__ == '__main__':
 
     # Network Construction
     net = AirNet(opt, embedder.out_dim).cuda()
+    net, start_epoch = load_latest_ckpt(net, opt.chkpt_path)
     net.train()
 
     # Optimizer and Loss
@@ -41,7 +42,7 @@ if __name__ == '__main__':
 
     # Start training
     print('Start training...')
-    for epoch in range(opt.epochs):
+    for epoch in range(start_epoch, opt.epochs):
         for ([clean_name, de_id], degrad_patch_1, degrad_patch_2, clean_patch_1, clean_patch_2) in tqdm(trainloader):
             degrad_patch_1, degrad_patch_2 = degrad_patch_1.cuda(), degrad_patch_2.cuda()
             clean_patch_1, clean_patch_2 = clean_patch_1.cuda(), clean_patch_2.cuda()

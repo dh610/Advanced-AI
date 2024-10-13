@@ -5,7 +5,7 @@ import numpy as np
 import torch
 from torchvision import transforms
 
-from utils.Embedder_utils import load_embedder_ckpt
+from AirNet.utils.ckpt_utils import load_embedder_ckpt
 
 transform_resize = transforms.Compose([
         transforms.Resize([224,224]),

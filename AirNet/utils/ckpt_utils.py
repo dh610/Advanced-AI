@@ -6,6 +6,7 @@ from skimage.metrics import peak_signal_noise_ratio as compare_psnr
 from skimage.metrics import mean_squared_error as compare_mse
 from skimage.metrics import structural_similarity as compare_ssim
 import pandas as pd
+import subprocess
 
 from net.Embedder import Embedder
 
@@ -37,3 +38,24 @@ def freeze(m):
     for p in m.parameters():
         p.requires_grad = False
         p.grad = None
+
+
+
+def load_latest_ckpt(net, ckpt_path):
+    checkpoint_files = [f for f in os.listdir(ckpt_path) if f.startswith('epoch_') and f.endswith('.pth')]
+
+    if not checkpoint_files:
+        print("No checkpoint found. Starting from scratch.")
+        return net, 0
+
+    epoch_values = [int(f.split('_')[1].split('.')[0]) for f in checkpoint_files]
+
+    latest_epoch = max(epoch_values)
+    latest_checkpoint = f'epoch_{latest_epoch}.pth'
+
+    print(f"Loading checkpoint: {latest_checkpoint}")
+
+    checkpoint = torch.load(os.path.join(ckpt_path, latest_checkpoint))
+    net.load_state_dict(checkpoint['model_state_dict'])
+
+    return net, latest_epoch 
