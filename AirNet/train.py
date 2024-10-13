@@ -1,7 +1,6 @@
 import subprocess
 from tqdm import tqdm
 
-import sys
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -14,17 +13,15 @@ from option import options as opt
 
 from utils.Embedder_utils import load_embedder_ckpt
 
-de_arr ={
+de_arr = [
     'haze', 'rain', 'low',      \
     'haze_rain', 'low_haze',    \
     'low_rain', 'low_haze_rain' \
-}
+]
 
 if __name__ == '__main__':
     torch.cuda.set_device(opt.cuda)
     subprocess.check_output(['mkdir', '-p', opt.ckpt_path])
-    print(opt)
-    sys.exit(0)
 
     trainset = TrainDataset(opt)
     trainloader = DataLoader(trainset, batch_size=opt.batch_size, pin_memory=True, shuffle=True,
