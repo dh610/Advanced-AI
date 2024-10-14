@@ -75,32 +75,22 @@ class ResEncoder(nn.Module):
 
 
 class CBDE(nn.Module):
-    def __init__(self, opt, embedder_out_dim):
+    def __init__(self, opt):
         super(CBDE, self).__init__()
 
         dim = 256
 
-        self.cross_attention = CrossAttentionBlock(img_dim=3*128*128, text_dim=embedder_out_dim)
         # Encoder
         self.E = MoCo(base_encoder=ResEncoder, dim=dim, K=opt.batch_size * dim)
 
-    def forward(self, x_query, x_key, text_embedding):
-
-        x_query_attn, _ = self.cross_attention(x_query, text_embedding)
-        x_key_attn, _ = self.cross_attention(x_key, text_embedding)
-
-        combined_features_query = x_query + x_query_attn
-        combined_features_key = x_key + x_key_attn
+    def forward(self, x_query, x_key):
 
         if self.training:
             # degradation-aware represenetion learning
-            fea, logits, labels, inter = self.E(combined_features_query, combined_features_key)
-            print(inter.shape)
-            import sys
-            sys.exit(0)
+            fea, logits, labels, inter = self.E(x_query, x_key)
 
-            return fea, logits, labels, inter, combined_features_query
+            return fea, logits, labels, inter
         else:
             # degradation-aware represenetion learning
-            fea, inter = self.E(combined_features_query, combined_features_query)
-            return fea, inter, combined_features_query
+            fea, inter = self.E(x_query, x_query)
+            return fea, inter

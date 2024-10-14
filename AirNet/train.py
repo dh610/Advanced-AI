@@ -30,7 +30,7 @@ if __name__ == '__main__':
     embedder = load_embedder_ckpt(opt.cuda, freeze_model=True)
 
     # Network Construction
-    net = AirNet(opt, embedder.out_dim).cuda()
+    net = AirNet(opt, embedder).cuda()
     #net, start_epoch = load_latest_ckpt(net, opt.ckpt_path)
     start_epoch = 0
     net.train()
@@ -52,16 +52,12 @@ if __name__ == '__main__':
 
             de_id = de_id.unsqueeze(1)
 
-            embedding_vector = embedder(de_id, 'text_idx_encoder')
-
             if epoch < opt.epochs_encoder:
-                _, output, target, _, _ = net.E(x_query=degrad_patch_1, x_key=degrad_patch_2, text_embedding=embedding_vector)
+                _, output, target, _ = net.E(x_query=degrad_patch_1, x_key=degrad_patch_2)
                 contrast_loss = CE(output, target)
                 loss = contrast_loss
             else:
-                if epoch % 4 != 0:
-                    embedding_vector.zero_()
-                restored, output, target = net(x_query=degrad_patch_1, x_key=degrad_patch_2, text_embedding=embedding_vector)
+                restored, output, target = net(x_query=degrad_patch_1, x_key=degrad_patch_2, de_id=de_id)
                 contrast_loss = CE(output, target)
                 l1_loss = l1(restored, clean_patch_1)
                 loss = l1_loss + 0.1 * contrast_loss
