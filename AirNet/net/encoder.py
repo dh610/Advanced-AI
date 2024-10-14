@@ -75,7 +75,7 @@ class ResEncoder(nn.Module):
 
 
 class CBDE(nn.Module):
-    def __init__(self, opt, embedder_out_dim):
+    def __init__(self, opt):
         super(CBDE, self).__init__()
 
         dim = 256
