@@ -17,7 +17,13 @@ class AttentionFusion(nn.Module):
         )
 
     def forward(self, img_param, text_param):
-        combined = torch.cat([img_param, text_param], dim=1)
+        # 텍스트 임베딩을 이미지와 같은 공간 차원으로 업샘플링
+        if text_param.size(2) != img_param.size(2) or text_param.size(3) != img_param.size(3):
+            text_param = torch.nn.functional.interpolate(
+                text_param, size=(img_param.size(2), img_param.size(3)), mode='nearest'
+            )
+        
+        combined = torch.cat([img_param, text_param], dim=1)  # 채널 기준 결합
         attn = self.attention(combined)  # 어텐션 맵 생성
         return img_param * attn + text_param * (1 - attn)
 
