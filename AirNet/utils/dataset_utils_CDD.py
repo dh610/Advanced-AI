@@ -241,9 +241,9 @@ class TrainDataset(Dataset):
         clean_patch_1, clean_patch_2 = self.toTensor(clean_patch_1), self.toTensor(clean_patch_2)
         degrad_patch_1, degrad_patch_2 = self.toTensor(degrad_patch_1), self.toTensor(degrad_patch_2)
 
-        self.de_temp = (self.de_temp + 1) % len(self.de_type)
+        self.de_temp = (self.de_temp + 1) % 7
         if self.de_temp == 0:
-            random.shuffle(self.de_type)
+            random.shuffle(7)
 
         return [clean_name, de_id], degrad_patch_1, degrad_patch_2, clean_patch_1, clean_patch_2
 

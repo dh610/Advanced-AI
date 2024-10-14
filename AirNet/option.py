@@ -10,7 +10,7 @@ parser.add_argument('--epochs', type=int, default=1000, help='maximum number of 
 parser.add_argument('--epochs_encoder', type=int, default=100, help='number of epochs to train encoder.')
 parser.add_argument('--lr', type=float, default=1e-3, help='learning rate of encoder.')
 
-parser.add_argument('--de_type', type=list, default=['haze', 'rain', 'low', 'haze_rain', 'low_haze', 'low_rain', 'low_haze_rain'],
+parser.add_argument('--de_type', type=list, default=['haze'],
                     help='which type of degradations is training and testing for.')
 
 parser.add_argument('--patch_size', type=int, default=128, help='patcphsize of input.')
