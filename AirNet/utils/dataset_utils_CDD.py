@@ -243,7 +243,7 @@ class TrainDataset(Dataset):
 
         self.de_temp = (self.de_temp + 1) % 7
         if self.de_temp == 0:
-            random.shuffle(7)
+            random.shuffle(self.de_type)
 
         return [clean_name, de_id], degrad_patch_1, degrad_patch_2, clean_patch_1, clean_patch_2
 
