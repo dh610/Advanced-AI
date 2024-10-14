@@ -100,6 +100,8 @@ class SFT_layer(nn.Module):
         print ("Shape of text_gamma", text_gamma.shape)
         print ("Shape of img_beta", img_beta.shape)
         print ("Shape of text_beta", text_beta.shape)
+        import sys
+        sys.exit(0)
 
         # concat으로 text 결합 실험
         return x * (img_gamma+text_gamma) + (img_beta+text_beta)
