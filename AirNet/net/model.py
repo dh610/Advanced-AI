@@ -19,12 +19,12 @@ class AirNet(nn.Module):
         if self.training:
             fea, logits, labels, inter= self.E(x_query, x_key)
 
-            restored = self.R(x_query, inter)
+            restored = self.R(x_query, inter, de_id)
 
             return restored, logits, labels
         else:
-            fea, inter = self.E(x_query, x_query, de_id)
+            fea, inter = self.E(x_query, x_query)
 
-            restored = self.R(x_query, inter)
+            restored = self.R(x_query, inter, de_id)
 
             return restored
