@@ -8,6 +8,19 @@ from .deform_conv import DCN_layer
 # 동적으로 텍스트 임베딩 차원 가져오기
 #text_embed_dim = clip_model.text_projection.shape[1]
 
+class AttentionFusion(nn.Module):
+    def __init__(self, channels):
+        super().__init__()
+        self.attention = nn.Sequential(
+            nn.Conv2d(channels * 2, channels, kernel_size=1),
+            nn.Sigmoid()
+        )
+
+    def forward(self, img_param, text_param):
+        combined = torch.cat([img_param, text_param], dim=1)
+        attn = self.attention(combined)  # 어텐션 맵 생성
+        return img_param * attn + text_param * (1 - attn)
+
 class CrossAttentionBlock(nn.Module):
     def __init__(self, img_dim, text_dim, out_dim=256):
         super(CrossAttentionBlock, self).__init__()
@@ -95,6 +108,7 @@ class SFT_layer(nn.Module):
         )
 
         self.embedder = embedder
+        self.attention = AttentionFusion(channels=64)
 
         self.text_proj_head = TextProjectionHead(self.embedder.out_dim, channels_out)
         self.text_gamma = nn.Sequential(
@@ -124,11 +138,12 @@ class SFT_layer(nn.Module):
         text_gamma = self.text_gamma(text_proj.unsqueeze(-1).unsqueeze(-1))  # Reshape to match (B, C, H, W)
         text_beta = self.text_beta(text_proj.unsqueeze(-1).unsqueeze(-1))  # Reshape to match (B, C, H, W)
 
+        fusion_gamma = self.attention(img_gamma, text_gamma)
+        fusion_beta = self.attention(img_beta, text_beta)
+
         print ("Shape of x", x.shape)
-        print ("Shape of img_gamma", img_gamma.shape)
-        print ("Shape of text_gamma", text_gamma.shape)
-        print ("Shape of img_beta", img_beta.shape)
-        print ("Shape of text_beta", text_beta.shape)
+        print ("Shape of fusion_gamma", fusion_gamma.shape)
+        print ("Shape of fusion_beta", fusion_beta.shape)
         import sys
         sys.exit(0)
 
