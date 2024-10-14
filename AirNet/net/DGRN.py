@@ -95,6 +95,7 @@ class SFT_layer(nn.Module):
         text_gamma = self.text_gamma(text_proj.unsqueeze(-1).unsqueeze(-1))  # Reshape to match (B, C, H, W)
         text_beta = self.text_beta(text_proj.unsqueeze(-1).unsqueeze(-1))  # Reshape to match (B, C, H, W)
 
+        '''
         print ("Shape of x", x.shape)
         print ("Shape of img_gamma", img_gamma.shape)
         print ("Shape of text_gamma", text_gamma.shape)
@@ -102,6 +103,7 @@ class SFT_layer(nn.Module):
         print ("Shape of text_beta", text_beta.shape)
         import sys
         sys.exit(0)
+        '''
 
         # concat으로 text 결합 실험
         return x * (img_gamma+text_gamma) + (img_beta+text_beta)
