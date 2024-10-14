@@ -8,27 +8,22 @@ class CrossAttentionBlock(nn.Module):
         self.text_linear = nn.Linear(text_dim, out_dim)  # text_dim -> 256
         self.attention = nn.MultiheadAttention(out_dim, num_heads=8)
 
-        # 원래 이미지 크기로 복원하는 Linear 레이어
         self.output_linear = nn.Linear(out_dim, 3 * 128 * 128)
 
     def forward(self, img_feat, text_feat):
         batch_size = img_feat.size(0)
 
-        # Flatten 이미지 특징 (batch_size, img_dim)
         img_feat_flat = img_feat.view(batch_size, -1)
 
-        # 이미지와 텍스트 임베딩 생성 (batch_size, out_dim)
         img_feat_proj = self.img_linear(img_feat_flat)
         text_feat_proj = self.text_linear(text_feat)
 
-        # Multihead Attention 수행 (batch_size, 1, out_dim)
         attn_output, attn_weights = self.attention(
             img_feat_proj.unsqueeze(1),  # (batch_size, 1, 256)
             text_feat_proj.unsqueeze(1),  # (batch_size, 1, 256)
             text_feat_proj.unsqueeze(1)   # (batch_size, 1, 256)
         )
 
-        # Linear 변환으로 이미지 크기로 복원 (batch_size, 3 * 128 * 128)
         restored_output = self.output_linear(attn_output)  # (batch_size, 1, 49152)
         restored_output = restored_output.view(batch_size, 3, 128, 128)
 
@@ -100,6 +95,9 @@ class CBDE(nn.Module):
         if self.training:
             # degradation-aware represenetion learning
             fea, logits, labels, inter = self.E(combined_features_query, combined_features_key)
+            print(inter.shape)
+            import sys
+            sys.exit(0)
 
             return fea, logits, labels, inter, combined_features_query
         else:

@@ -45,7 +45,7 @@ def load_latest_ckpt(net, ckpt_path):
     checkpoint_files = [f for f in os.listdir(ckpt_path) if f.startswith('epoch_') and f.endswith('.pth')]
 
     if not checkpoint_files:
-        print("No checkpoint found. Starting from scratch.")
+        print("No checkpoint found.")
         return net, 0
 
     epoch_values = [int(f.split('_')[1].split('.')[0]) for f in checkpoint_files]

@@ -1,7 +1,6 @@
 import subprocess
 from tqdm import tqdm
 
-import sys
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -32,7 +31,8 @@ if __name__ == '__main__':
 
     # Network Construction
     net = AirNet(opt, embedder.out_dim).cuda()
-    net, start_epoch = load_latest_ckpt(net, opt.ckpt_path)
+    #net, start_epoch = load_latest_ckpt(net, opt.ckpt_path)
+    start_epoch = 0
     net.train()
     print('Start at', start_epoch)
 
