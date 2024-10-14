@@ -8,6 +8,35 @@ from .deform_conv import DCN_layer
 # 동적으로 텍스트 임베딩 차원 가져오기
 #text_embed_dim = clip_model.text_projection.shape[1]
 
+class CrossAttentionBlock(nn.Module):
+    def __init__(self, img_dim, text_dim, out_dim=256):
+        super(CrossAttentionBlock, self).__init__()
+        self.img_linear = nn.Linear(img_dim, out_dim)  # img_dim -> 256
+        self.text_linear = nn.Linear(text_dim, out_dim)  # text_dim -> 256
+        self.attention = nn.MultiheadAttention(out_dim, num_heads=8)
+
+        self.output_linear = nn.Linear(out_dim, 3 * 128 * 128)
+
+    def forward(self, img_feat, text_feat):
+        batch_size = img_feat.size(0)
+
+        img_feat_flat = img_feat.view(batch_size, -1)
+
+        img_feat_proj = self.img_linear(img_feat_flat)
+        text_feat_proj = self.text_linear(text_feat)
+
+        attn_output, attn_weights = self.attention(
+            img_feat_proj.unsqueeze(1),  # (batch_size, 1, 256)
+            text_feat_proj.unsqueeze(1),  # (batch_size, 1, 256)
+            text_feat_proj.unsqueeze(1)   # (batch_size, 1, 256)
+        )
+
+        restored_output = self.output_linear(attn_output)  # (batch_size, 1, 49152)
+        restored_output = restored_output.view(batch_size, 3, 128, 128)
+
+
+        return restored_output, attn_weights
+
 
 def default_conv(in_channels, out_channels, kernel_size, bias=True):
     return nn.Conv2d(in_channels, out_channels, kernel_size, padding=(kernel_size // 2), bias=bias)
@@ -95,7 +124,6 @@ class SFT_layer(nn.Module):
         text_gamma = self.text_gamma(text_proj.unsqueeze(-1).unsqueeze(-1))  # Reshape to match (B, C, H, W)
         text_beta = self.text_beta(text_proj.unsqueeze(-1).unsqueeze(-1))  # Reshape to match (B, C, H, W)
 
-        '''
         print ("Shape of x", x.shape)
         print ("Shape of img_gamma", img_gamma.shape)
         print ("Shape of text_gamma", text_gamma.shape)
@@ -103,7 +131,6 @@ class SFT_layer(nn.Module):
         print ("Shape of text_beta", text_beta.shape)
         import sys
         sys.exit(0)
-        '''
 
         # concat으로 text 결합 실험
         return x * (img_gamma+text_gamma) + (img_beta+text_beta)

@@ -1,34 +1,6 @@
 from torch import nn
 from net.moco import MoCo
 
-class CrossAttentionBlock(nn.Module):
-    def __init__(self, img_dim, text_dim, out_dim=256):
-        super(CrossAttentionBlock, self).__init__()
-        self.img_linear = nn.Linear(img_dim, out_dim)  # img_dim -> 256
-        self.text_linear = nn.Linear(text_dim, out_dim)  # text_dim -> 256
-        self.attention = nn.MultiheadAttention(out_dim, num_heads=8)
-
-        self.output_linear = nn.Linear(out_dim, 3 * 128 * 128)
-
-    def forward(self, img_feat, text_feat):
-        batch_size = img_feat.size(0)
-
-        img_feat_flat = img_feat.view(batch_size, -1)
-
-        img_feat_proj = self.img_linear(img_feat_flat)
-        text_feat_proj = self.text_linear(text_feat)
-
-        attn_output, attn_weights = self.attention(
-            img_feat_proj.unsqueeze(1),  # (batch_size, 1, 256)
-            text_feat_proj.unsqueeze(1),  # (batch_size, 1, 256)
-            text_feat_proj.unsqueeze(1)   # (batch_size, 1, 256)
-        )
-
-        restored_output = self.output_linear(attn_output)  # (batch_size, 1, 49152)
-        restored_output = restored_output.view(batch_size, 3, 128, 128)
-
-
-        return restored_output, attn_weights
 
 class ResBlock(nn.Module):
     def __init__(self, in_feat, out_feat, stride=1):
