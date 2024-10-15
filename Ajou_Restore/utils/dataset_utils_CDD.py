@@ -39,7 +39,7 @@ class TrainDataset(Dataset):
 
         self.toTensor = ToTensor()
 
-        with open('prompt.json', 'r') as f:
+        with open('prompts.json', 'r') as f:
             self.prompts = json.load(f)
 
         self.prompts_key = list(self.prompts.keys())
