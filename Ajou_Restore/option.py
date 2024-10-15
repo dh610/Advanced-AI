@@ -21,7 +21,7 @@ parser.add_argument('--num_workers', type=int, default=1, help='number of worker
 parser.add_argument('--data_file_dir', type=str, default='data_dir/',  help='where clean images of denoising saves.')
 parser.add_argument('--denoise_dir', type=str, default='data/Train/Denoise/',
                     help='where clean images of denoising saves.')
-parser.add_argument('--derain_dir', type=str, default='/content/drive/MyDrive/Advanced-AI/AirNet/data/CDD-11_train_100/',
+parser.add_argument('--derain_dir', type=str, default='data/CDD-11_train_100/',
                     help='where training images of deraining saves.')
 parser.add_argument('--dehaze_dir', type=str, default='data/Train/Dehaze/',
                     help='where training images of dehazing saves.')
