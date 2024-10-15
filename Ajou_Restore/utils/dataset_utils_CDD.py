@@ -29,7 +29,6 @@ class TrainDataset(Dataset):
         self.de_temp = 0
         self.de_type = self.args.de_type
         self.image_extensions = ['.jpg', '.jpeg', '.png', '.bmp', '.gif']
-        print(self.args.derain_dir)
 
         self._init_ids()
 
