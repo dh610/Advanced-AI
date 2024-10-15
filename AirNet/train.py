@@ -78,7 +78,7 @@ if __name__ == '__main__':
                 ), '\r', end='')
 
         GPUS = 1
-        if (epoch + 1) % 50 == 0:
+        if (epoch + 1) % 20 == 0:
             checkpoint = {
                 "net": net.state_dict(),
                 'optimizer': optimizer.state_dict(),

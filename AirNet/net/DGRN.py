@@ -148,7 +148,8 @@ class SFT_layer(nn.Module):
         fusion_beta = self.attention(img_beta, text_beta)
 
         # concat으로 text 결합 실험
-        return x * fusion_gamma + fusion_beta
+        final = x * fusion_gamma + fusion_beta
+        return final + x
 
 
 class DGB(nn.Module):
