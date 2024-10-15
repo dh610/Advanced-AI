@@ -59,20 +59,13 @@ class TrainDataset(Dataset):
         # 파일 목록 중 이미지 파일만 필터링
         derain_ids = []
         # name_list = os.listdir(self.args.derain_dir)
-        if not os.path.exists(self.args.derain_dir):
-            print(self.args.derain_dir)
-            print("Error: Directory does not exist.")
-            from sys import exit
-            exit(1)
 
         for root, dirs, files in os.walk(self.args.derain_dir):
             for file in files:
                 if os.path.splitext(file)[1].lower() in self.image_extensions and os.path.basename(root) == 'haze':
                     derain_ids.append(os.path.join(root, file))
         self.hazy_ids = derain_ids
-        print(self.hazy_ids)
-        from sys import exit
-        exit(0)
+        # print(self.hazy_ids)
         self.haze_counter = 0
         self.num_haze = len(self.hazy_ids)
 
