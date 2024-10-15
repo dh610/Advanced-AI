@@ -60,6 +60,7 @@ class TrainDataset(Dataset):
         derain_ids = []
         # name_list = os.listdir(self.args.derain_dir)
         if not os.path.exists(self.args.derain_dir):
+            print(self.args.derain_dir)
             print("Error: Directory does not exist.")
             from sys import exit
             exit(1)
