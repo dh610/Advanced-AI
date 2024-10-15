@@ -65,7 +65,7 @@ class TrainDataset(Dataset):
                 if os.path.splitext(file)[1].lower() in self.image_extensions and os.path.basename(root) == 'haze':
                     derain_ids.append(os.path.join(root, file))
         self.hazy_ids = derain_ids
-        # print(self.hazy_ids)
+        print(self.hazy_ids)
         self.haze_counter = 0
         self.num_haze = len(self.hazy_ids)
 
