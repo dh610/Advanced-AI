@@ -66,6 +66,8 @@ class TrainDataset(Dataset):
                     derain_ids.append(os.path.join(root, file))
         self.hazy_ids = derain_ids
         print(self.hazy_ids)
+        from sys import exit
+        exit(0)
         self.haze_counter = 0
         self.num_haze = len(self.hazy_ids)
 
