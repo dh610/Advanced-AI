@@ -33,6 +33,8 @@ if __name__ == '__main__':
     l1 = nn.L1Loss().cuda()
 
     # Start training
+    min_contrast_loss = float('inf')
+    min_l1_loss = float('inf')
     print('Start training...')
     for epoch in range(opt.epochs):
         epoch += save_epoch
@@ -69,16 +71,20 @@ if __name__ == '__main__':
                 ), '\r', end='')
 
         GPUS = 1
-        if (epoch + 1) % 15 == 0:
-            checkpoint = {
-                "net": net.state_dict(),
-                'optimizer': optimizer.state_dict(),
-                "epoch": epoch
-            }
-            if GPUS == 1:
-                torch.save(net.state_dict(), opt.ckpt_path + 'epoch_' + str(epoch + 1) + '.pth')
-            else:
-                torch.save(net.module.state_dict(), opt.ckpt_path + 'epoch_' + str(epoch + 1) + '.pth')
+        if min_contrast_loss >= contrast_loss.item() and min_l1_loss >= l1_loss.item():
+            min_contrast_loss = contrast_loss.item()
+            min_l1_loss = l1_loss.item()
+
+            if epoch >= opt.epochs_encoder:
+                checkpoint = {
+                    "net": net.state_dict(),
+                    'optimizer': optimizer.state_dict(),
+                    "epoch": epoch
+                }
+                if GPUS == 1:
+                    torch.save(net.state_dict(), opt.ckpt_path + 'epoch_' + str(epoch + 1) + '.pth')
+                else:
+                    torch.save(net.module.state_dict(), opt.ckpt_path + 'epoch_' + str(epoch + 1) + '.pth')
 
         if epoch <= opt.epochs_encoder:
             lr = opt.lr * (0.1 ** (epoch // 60))
