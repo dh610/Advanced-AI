@@ -52,6 +52,17 @@ class TextProjectionHead(nn.Module):
     def forward(self, x):
         return self.proj(x.float())
 
+class CrossAttention(nn.Module):
+    def __init__(self, embed_dim, num_heads):
+        super(CrossAttention, self).__init__()
+        self.attn = nn.MultiheadAttention(embed_dim, num_heads, batch_first=True)
+
+    def forward(self, query, key, value):
+        # query: Image feature (B, H*W, C)
+        # key, value: Text embedding (B, T, C)
+        attn_output, _ = self.attn(query, key, value)
+        return attn_output
+
 class AttentionFusion(nn.Module):
     def __init__(self, channels):
         super().__init__()
@@ -108,8 +119,7 @@ class SFT_layer(nn.Module):
             nn.Conv2d(channels_out, channels_out, 1, 1, 0, bias=False),
         ).float()
 
-        self.film = FiLM(text_embed_dim, channels_out)
-        self.attention_fusion = AttentionFusion(channels_out)
+        self.crossattention = CrossAttention(embed_dim=channels_out, num_heads=num_heads)
 
     def forward(self, x, inter, text_prompt):
         '''
@@ -125,18 +135,17 @@ class SFT_layer(nn.Module):
         
         text_proj = self.text_proj_head(text_embed).float()
 
-        text_gamma = self.text_gamma(text_proj.unsqueeze(-1).unsqueeze(-1))  # Reshape to match (B, C, H, W)
-        text_beta = self.text_beta(text_proj.unsqueeze(-1).unsqueeze(-1))  # Reshape to match (B, C, H, W)
+        B, C, H, W = x.shape
+        x_reshaped = x.view(B, H * W, C)  # (B, H*W, C)
+        text_proj = text_proj.unsqueeze(1)  # (B, 1, C)
 
-        film_gamma = self.film(x, text_gamma)
-        film_beta = self.film(x, text_beta)
+        attn_output = self.cross_attention(x_reshaped, text_proj, text_proj)
+        attn_output = attn_output.view(B, C, H, W)  # (B, C, H, W)
 
-        fusion_gamma = self.attention_fusion(img_gamma, film_gamma)  # (B, C, H, W)
-        fusion_beta = self.attention_fusion(img_beta, film_beta)  # (B, C, H, W)
+        gamma = img_gamma + attn_output
+        beta = img_beta + attn_output
 
-        out = x * fusion_gamma + fusion_beta
-        # Add Residual Connection
-        return x + out
+        return x * gamma + beta
 
 
 class DGB(nn.Module):
