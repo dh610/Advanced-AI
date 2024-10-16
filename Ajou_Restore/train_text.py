@@ -26,7 +26,10 @@ if __name__ == '__main__':
     net.train()
     if opt.ckpt != "none" :
         net.load_state_dict(torch.load(opt.ckpt))
-        save_epoch = int(opt.ckpt.split('_')[1][:-4])
+        import re
+        match = re.search(r'epoch_(\d+)_', opt.ckpt)
+        if match:
+            save_epoch = int(match.group(1))
     # Optimizer and Loss
     optimizer = optim.Adam(net.parameters(), lr=opt.lr)
     CE = nn.CrossEntropyLoss().cuda()
@@ -35,7 +38,7 @@ if __name__ == '__main__':
     # Start training
     min_contrast_loss = float('inf')
     min_l1_loss = float('inf')
-    print('Start training...')
+    print('Start training from' + save_epoch)
     for epoch in range(opt.epochs):
         epoch += save_epoch
         for ([clean_name, de_id], degrad_patch_1, degrad_patch_2, clean_patch_1, clean_patch_2, text_prompt) in tqdm(trainloader):
@@ -71,7 +74,30 @@ if __name__ == '__main__':
                 ), '\r', end='')
 
         GPUS = 1
-        if min_contrast_loss >= contrast_loss.item() and epoch > opt.epochs_encoder and min_l1_loss >= l1_loss.item():
+        if epoch > opt.epochs_encoder:
+            save = False
+            if min_contrast_loss >= contrast_loss.item():
+                min_contrast_loss = contrast_loss.item()
+                save = True
+            if min_l1_loss >= l1_loss.item():
+                min_l1_loss = l1_loss.item()
+                save = True
+
+            if save:
+                checkpoint = {
+                    "net": net.state_dict(),
+                    'optimizer': optimizer.state_dict(),
+                    "epoch": epoch
+                }
+                save_name = 'epoch_{}_l1_{:.4f}_cl_{:.2f}.pth'.format(epoch + 1, min_l1_loss, min_contrast_loss)
+                if GPUS == 1:
+                    torch.save(net.state_dict(), opt.ckpt_path + save_name)
+                else:
+                    torch.save(net.module.state_dict(), opt.ckpt_path + save_name)
+                print('Weights are saved at ' + save_name)
+
+            
+        if epoch > opt.epochs_encoder and (min_contrast_loss >= contrast_loss.item() or  min_l1_loss >= l1_loss.item()):
             min_contrast_loss = contrast_loss.item()
             min_l1_loss = l1_loss.item()
 
