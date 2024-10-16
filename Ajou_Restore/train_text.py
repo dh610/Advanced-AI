@@ -38,7 +38,7 @@ if __name__ == '__main__':
     # Start training
     min_contrast_loss = float('inf')
     min_l1_loss = float('inf')
-    print('Start training from' + save_epoch)
+    print('Start training from' + str(save_epoch))
     for epoch in range(opt.epochs):
         epoch += save_epoch
         for ([clean_name, de_id], degrad_patch_1, degrad_patch_2, clean_patch_1, clean_patch_2, text_prompt) in tqdm(trainloader):
