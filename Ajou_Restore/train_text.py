@@ -75,16 +75,10 @@ if __name__ == '__main__':
 
         GPUS = 1
         if epoch > opt.epochs_encoder:
-            save = False
-            if min_contrast_loss >= contrast_loss.item():
+            if min_contrast_loss >= contrast_loss.item() or min_l1_loss >= l1_loss.item():
                 min_contrast_loss = contrast_loss.item()
-                save = True
-
-            if min_l1_loss >= l1_loss.item():
                 min_l1_loss = l1_loss.item()
-                save = True
 
-            if save:
                 checkpoint = {
                     "net": net.state_dict(),
                     'optimizer': optimizer.state_dict(),
