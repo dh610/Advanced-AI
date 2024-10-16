@@ -82,9 +82,9 @@ if __name__ == '__main__':
                     "epoch": epoch
                 }
                 if GPUS == 1:
-                    torch.save(net.state_dict(), opt.ckpt_path + 'epoch_' + str(epoch + 1) + '.pth')
+                    torch.save(net.state_dict(), opt.ckpt_path + 'epoch_' + str(epoch + 1) + '_l1_' + str(min_l1_loss) + '_cl_' + str(min_contrast_loss) + '.pth')
                 else:
-                    torch.save(net.module.state_dict(), opt.ckpt_path + 'epoch_' + str(epoch + 1) + '.pth')
+                    torch.save(net.module.state_dict(), opt.ckpt_path + 'epoch_' + str(epoch + 1) + '_l1_' + str(min_l1_loss) + '_cl_' + str(min_contrast_loss) + '.pth')
 
         if epoch <= opt.epochs_encoder:
             lr = opt.lr * (0.1 ** (epoch // 60))
