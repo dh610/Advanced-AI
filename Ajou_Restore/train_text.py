@@ -73,7 +73,7 @@ if __name__ == '__main__':
                 ), '\r', end='')
 
         GPUS = 1
-        if epoch > opt.epochs_encoder and min_l1_loss >= l1_loss.item():
+        if epoch % 20 == 0 or epoch > opt.epochs_encoder and min_l1_loss >= l1_loss.item():
             min_l1_loss = l1_loss.item()
 
             checkpoint = {
