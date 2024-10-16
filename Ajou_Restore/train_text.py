@@ -97,23 +97,6 @@ if __name__ == '__main__':
                     torch.save(net.module.state_dict(), opt.ckpt_path + save_name)
                 print('Weights are saved at ' + save_name)
 
-            
-        if epoch > opt.epochs_encoder and (min_contrast_loss >= contrast_loss.item() or  min_l1_loss >= l1_loss.item()):
-            min_contrast_loss = contrast_loss.item()
-            min_l1_loss = l1_loss.item()
-
-            checkpoint = {
-                "net": net.state_dict(),
-                'optimizer': optimizer.state_dict(),
-                "epoch": epoch
-            }
-            save_name = 'epoch_{}_l1_{:.4f}_cl_{:.2f}.pth'.format(epoch + 1, min_l1_loss, min_contrast_loss)
-            if GPUS == 1:
-                torch.save(net.state_dict(), opt.ckpt_path + save_name)
-            else:
-                torch.save(net.module.state_dict(), opt.ckpt_path + save_name)
-            print('Weights are saved at' + save_name)
-
         if epoch <= opt.epochs_encoder:
             lr = opt.lr * (0.1 ** (epoch // 60))
             for param_group in optimizer.param_groups:
