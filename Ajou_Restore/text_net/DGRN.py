@@ -53,16 +53,21 @@ class TextProjectionHead(nn.Module):
         return self.proj(x.float())
 
 class CrossAttention(nn.Module):
-    def __init__(self, embed_dim, num_heads):
+    def __init__(self, embed_dim, channels_out):
         super(CrossAttention, self).__init__()
-        self.attn = nn.MultiheadAttention(embed_dim, num_heads, batch_first=True)
+        self.query = nn.Linear(embed_dim, channels_out)
+        self.key = nn.Linear(channels_out, channels_out)
+        self.value = nn.Linear(channels_out, channels_out)
 
-    def forward(self, query, key, value):
-        # query: Image feature (B, H*W, C)
-        # key, value: Text embedding (B, T, C)
-        attn_output, _ = self.attn(query, key, value)
-        return attn_output
+    def forward(self, text_feat, img_feat):
+        query = self.query(text_feat).unsqueeze(1)  # (B, 1, C)
+        key = self.key(img_feat).permute(0, 2, 1)  # (B, C, HW)
+        value = self.value(img_feat)  # (B, C, HW)
 
+        attention_weights = torch.softmax(torch.bmm(query, key), dim=-1)  # (B, 1, HW)
+        attended_feat = torch.bmm(attention_weights, value.permute(0, 2, 1))  # (B, 1, C)
+
+        return attended_feat.squeeze(1)  # (B, C)
 
 class SFT_layer(nn.Module):
     def __init__(self, channels_in, channels_out, num_heads=8):
@@ -90,7 +95,9 @@ class SFT_layer(nn.Module):
             nn.Conv2d(channels_out, channels_out, 1, 1, 0, bias=False),
         ).float()
 
-        self.cross_attention = CrossAttention(embed_dim=channels_out, num_heads=num_heads)
+        self.multihead_attn = nn.MultiheadAttention(
+            embed_dim=channels_out, num_heads=num_heads, batch_first=True
+        )
 
     def forward(self, x, inter, text_prompt):
         '''
@@ -106,17 +113,19 @@ class SFT_layer(nn.Module):
         
         text_proj = self.text_proj_head(text_embed).float()
 
-        B, C, H, W = x.shape
-        x_reshaped = x.view(B, H * W, C)  # (B, H*W, C)
-        text_proj = text_proj.unsqueeze(1)  # (B, 1, C)
+        B, C, H, W = inter.size()
+        inter_flattened = inter.reshape(B, C, H * W).permute(0, 2, 1)  # (B, H*W, C)
 
-        attn_output = self.cross_attention(x_reshaped, text_proj, text_proj)
-        attn_output = attn_output.view(B, C, H, W)  # (B, C, H, W)
+        attended_feat, _ = self.multihead_attn(
+            query=text_proj.unsqueeze(1),  # (B, 1, C)
+            key=inter_flattened,           # (B, H*W, C)
+            value=inter_flattened          # (B, H*W, C)
+        )  # attended_feat: (B, 1, C)
 
-        gamma = img_gamma + attn_output
-        beta = img_beta + attn_output
+        text_gamma = attended_feat.squeeze(1).unsqueeze(-1).unsqueeze(-1)  # (B, C, 1, 1)
+        text_beta = attended_feat.squeeze(1).unsqueeze(-1).unsqueeze(-1)   # (B, C, 1, 1)
 
-        return x * gamma + beta
+        return x * (img_gamma + text_gamma) + (img_beta + text_beta)
 
 
 class DGB(nn.Module):
