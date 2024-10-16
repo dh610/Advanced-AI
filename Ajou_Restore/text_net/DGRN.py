@@ -90,7 +90,7 @@ class SFT_layer(nn.Module):
             nn.Conv2d(channels_out, channels_out, 1, 1, 0, bias=False),
         ).float()
 
-        self.crossattention = CrossAttention(embed_dim=channels_out, num_heads=num_heads)
+        self.cross_attention = CrossAttention(embed_dim=channels_out, num_heads=num_heads)
 
     def forward(self, x, inter, text_prompt):
         '''
