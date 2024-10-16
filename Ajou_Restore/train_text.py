@@ -36,7 +36,6 @@ if __name__ == '__main__':
     l1 = nn.L1Loss().cuda()
 
     # Start training
-    min_contrast_loss = float('inf')
     min_l1_loss = float('inf')
     print('Start training from ' + str(save_epoch))
     for epoch in range(opt.epochs):
@@ -74,22 +73,20 @@ if __name__ == '__main__':
                 ), '\r', end='')
 
         GPUS = 1
-        if epoch > opt.epochs_encoder:
-            if min_contrast_loss >= contrast_loss.item() or min_l1_loss >= l1_loss.item():
-                min_contrast_loss = contrast_loss.item()
-                min_l1_loss = l1_loss.item()
+        if epoch > opt.epochs_encoder and min_l1_loss >= l1_loss.item():
+            min_l1_loss = l1_loss.item()
 
-                checkpoint = {
-                    "net": net.state_dict(),
-                    'optimizer': optimizer.state_dict(),
-                    "epoch": epoch
-                }
-                save_name = 'epoch_{}_l1_{:.4f}_cl_{:.2f}.pth'.format(epoch + 1, l1_loss.item(), contrast_loss.item())
-                if GPUS == 1:
-                    torch.save(net.state_dict(), opt.ckpt_path + save_name)
-                else:
-                    torch.save(net.module.state_dict(), opt.ckpt_path + save_name)
-                print('Weights are saved at ' + save_name)
+            checkpoint = {
+                "net": net.state_dict(),
+                'optimizer': optimizer.state_dict(),
+                "epoch": epoch
+            }
+            save_name = 'epoch_{}_l1_{:.4f}_cl_{:.2f}.pth'.format(epoch + 1, l1_loss.item(), contrast_loss.item())
+            if GPUS == 1:
+                torch.save(net.state_dict(), opt.ckpt_path + save_name)
+            else:
+                torch.save(net.module.state_dict(), opt.ckpt_path + save_name)
+            print('Weights are saved at ' + save_name)
 
         if epoch <= opt.epochs_encoder:
             lr = opt.lr * (0.1 ** (epoch // 60))
