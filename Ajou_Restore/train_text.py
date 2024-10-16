@@ -38,7 +38,7 @@ if __name__ == '__main__':
     # Start training
     min_contrast_loss = float('inf')
     min_l1_loss = float('inf')
-    print('Start training from' + str(save_epoch))
+    print('Start training from ' + str(save_epoch))
     for epoch in range(opt.epochs):
         epoch += save_epoch
         for ([clean_name, de_id], degrad_patch_1, degrad_patch_2, clean_patch_1, clean_patch_2, text_prompt) in tqdm(trainloader):
@@ -79,6 +79,7 @@ if __name__ == '__main__':
             if min_contrast_loss >= contrast_loss.item():
                 min_contrast_loss = contrast_loss.item()
                 save = True
+
             if min_l1_loss >= l1_loss.item():
                 min_l1_loss = l1_loss.item()
                 save = True
@@ -89,7 +90,7 @@ if __name__ == '__main__':
                     'optimizer': optimizer.state_dict(),
                     "epoch": epoch
                 }
-                save_name = 'epoch_{}_l1_{:.4f}_cl_{:.2f}.pth'.format(epoch + 1, min_l1_loss, min_contrast_loss)
+                save_name = 'epoch_{}_l1_{:.4f}_cl_{:.2f}.pth'.format(epoch + 1, l1_loss.item(), contrast_loss.item())
                 if GPUS == 1:
                     torch.save(net.state_dict(), opt.ckpt_path + save_name)
                 else:
