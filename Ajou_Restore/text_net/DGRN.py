@@ -71,6 +71,17 @@ class AttentionFusion(nn.Module):
         attn = self.attention(combined)
         return img_param * attn + text_param * (1 - attn)
 
+class FiLM(nn.Module):
+    def __init__(self, text_embed_dim, feature_dim):
+        super(FiLM, self).__init__()
+        self.gamma = nn.Linear(text_embed_dim, feature_dim)
+        self.beta = nn.Linear(text_embed_dim, feature_dim)
+
+    def forward(self, x, text_embed):
+        gamma = self.gamma(text_embed).unsqueeze(-1).unsqueeze(-1)  # (B, C, 1, 1)
+        beta = self.beta(text_embed).unsqueeze(-1).unsqueeze(-1)  # (B, C, 1, 1)
+        return x * gamma + beta
+
 class SFT_layer(nn.Module):
     def __init__(self, channels_in, channels_out, num_heads=8):
         super(SFT_layer, self).__init__()
@@ -97,6 +108,7 @@ class SFT_layer(nn.Module):
             nn.Conv2d(channels_out, channels_out, 1, 1, 0, bias=False),
         ).float()
 
+        self.film = FiLM(text_embed_dim, channels_out)
         self.attention_fusion = AttentionFusion(channels_out)
 
     def forward(self, x, inter, text_prompt):
