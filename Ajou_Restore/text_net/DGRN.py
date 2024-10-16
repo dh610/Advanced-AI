@@ -63,35 +63,6 @@ class CrossAttention(nn.Module):
         attn_output, _ = self.attn(query, key, value)
         return attn_output
 
-class AttentionFusion(nn.Module):
-    def __init__(self, channels):
-        super().__init__()
-        self.attention = nn.Sequential(
-            nn.Conv2d(channels * 2, channels, kernel_size=1),
-            nn.Sigmoid()
-        )
-
-    def forward(self, img_param, text_param):
-        if text_param.size(2) != img_param.size(2) or text_param.size(3) != img_param.size(3):
-            text_param = F.interpolate(
-                text_param, size=(img_param.size(2), img_param.size(3)), mode='nearest'
-            )
-
-        combined = torch.cat([img_param, text_param], dim=1)
-        
-        attn = self.attention(combined)
-        return img_param * attn + text_param * (1 - attn)
-
-class FiLM(nn.Module):
-    def __init__(self, text_embed_dim, feature_dim):
-        super(FiLM, self).__init__()
-        self.gamma = nn.Linear(text_embed_dim, feature_dim)
-        self.beta = nn.Linear(text_embed_dim, feature_dim)
-
-    def forward(self, x, text_embed):
-        gamma = self.gamma(text_embed).unsqueeze(-1).unsqueeze(-1)  # (B, C, 1, 1)
-        beta = self.beta(text_embed).unsqueeze(-1).unsqueeze(-1)  # (B, C, 1, 1)
-        return x * gamma + beta
 
 class SFT_layer(nn.Module):
     def __init__(self, channels_in, channels_out, num_heads=8):
