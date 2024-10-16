@@ -97,8 +97,8 @@ if __name__ == '__main__':
 
     # Make network
     net = AirNet(opt).cuda()
-    net.eval()
     net.load_state_dict(torch.load(ckpt_path, map_location=torch.device(opt.cuda)))
+    net.eval()
 
     if opt.mode == 0:
         print('Start testing Sigma=15...')
