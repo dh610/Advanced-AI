@@ -86,6 +86,7 @@ if __name__ == '__main__':
                     torch.save(net.state_dict(), opt.ckpt_path + save_name)
                 else:
                     torch.save(net.module.state_dict(), opt.ckpt_path + save_name)
+                print('Weights are saved at' + save_name)
 
         if epoch <= opt.epochs_encoder:
             lr = opt.lr * (0.1 ** (epoch // 60))
