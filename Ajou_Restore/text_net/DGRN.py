@@ -128,8 +128,11 @@ class SFT_layer(nn.Module):
         text_gamma = self.text_gamma(text_proj.unsqueeze(-1).unsqueeze(-1))  # Reshape to match (B, C, H, W)
         text_beta = self.text_beta(text_proj.unsqueeze(-1).unsqueeze(-1))  # Reshape to match (B, C, H, W)
 
-        fusion_gamma = self.attention_fusion(img_gamma, text_gamma)  # (B, C, H, W)
-        fusion_beta = self.attention_fusion(img_beta, text_beta)  # (B, C, H, W)
+        film_gamma = self.film(x, text_gamma)
+        film_beta = self.film(x, text_beta)
+
+        fusion_gamma = self.attention_fusion(img_gamma, film_gamma)  # (B, C, H, W)
+        fusion_beta = self.attention_fusion(img_beta, film_beta)  # (B, C, H, W)
 
         out = x * fusion_gamma + fusion_beta
         # Add Residual Connection
