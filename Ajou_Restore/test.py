@@ -84,7 +84,7 @@ if __name__ == '__main__':
         ckpt_path = opt.ckpt_path + 'Denoise.pth'
     elif opt.mode == 1:
         opt.batch_size = 8
-        ckpt_path = opt.ckpt_path + 'Denoise/epoch_270.pth'
+        ckpt_path = opt.ckpt_path + 'Denoise/epoch_282.pth'
     elif opt.mode == 2:
         opt.batch_size = 1
         ckpt_path = opt.ckpt_path + 'Dehaze.pth'
