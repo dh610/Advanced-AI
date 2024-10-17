@@ -20,6 +20,7 @@ import subprocess
 def extract_info_from_filename(filename):
     # epoch_%d_l1_%.4f_cl_%.2f.pth에서 epoch, l1_loss, contrast_loss 추출
     match = re.match(r'epoch_(\d+)_l1_(\d+\.\d+)_cl_(\d+\.\d+)\.pth', filename)
+    print(match)
     if match:
         epoch = int(match.group(1))
         l1_loss = float(match.group(2))
@@ -42,7 +43,6 @@ def test_and_save_results(net, dataset, ckpt_files, csv_path, task="derain"):
     for ckpt_file in ckpt_files:
         # 파일에서 epoch, l1_loss, contrast_loss 정보 추출
         epoch, l1_loss, contrast_loss = extract_info_from_filename(ckpt_file)
-        print(epoch, l1_loss, contrast_loss)
         if epoch is None:
             continue
 
