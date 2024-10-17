@@ -57,7 +57,7 @@ def compute_psnr_ssim(recoverd, clean):
     psnr = 0
     ssim = 0
     for i in range(recoverd.shape[0]):
-        print(f"Clean patch size: {clean[i].shape}, Restored size: {recoverd[i].shape}")
+        #print(f"Clean patch size: {clean[i].shape}, Restored size: {recoverd[i].shape}")
         # psnr_val += compare_psnr(clean[i], recoverd[i])
         # ssim += compare_ssim(clean[i], recoverd[i], multichannel=True)
         psnr += peak_signal_noise_ratio(clean[i], recoverd[i], data_range=1)
