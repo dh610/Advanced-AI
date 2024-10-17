@@ -88,6 +88,7 @@ if __name__ == '__main__':
     # Checkpoint 파일 목록 가져오기
     ckpt_files = [os.path.join(opt.ckpt_path, f) for f in os.listdir(opt.ckpt_path) if f.endswith('.pth')]
     csv_path = 'result.csv'
+    print(ckpt_files)
 
     # 성능 측정 및 CSV 저장
     test_and_save_results(net, derain_set, ckpt_files, csv_path, task="derain")
