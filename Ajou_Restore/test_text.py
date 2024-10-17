@@ -40,6 +40,7 @@ def test_and_save_results(net, dataset, ckpt_files, csv_path, task="derain"):
     testloader = DataLoader(dataset, batch_size=1, pin_memory=True, shuffle=False, num_workers=0)
 
     for ckpt_file in ckpt_files:
+        print(ckpt_file)
         # 파일에서 epoch, l1_loss, contrast_loss 정보 추출
         epoch, l1_loss, contrast_loss = extract_info_from_filename(ckpt_file)
         if epoch is None:
@@ -88,7 +89,6 @@ if __name__ == '__main__':
     # Checkpoint 파일 목록 가져오기
     ckpt_files = [os.path.join(opt.ckpt_path, f) for f in os.listdir(opt.ckpt_path) if f.endswith('.pth')]
     csv_path = 'result.csv'
-    print(ckpt_files)
 
     # 성능 측정 및 CSV 저장
     test_and_save_results(net, derain_set, ckpt_files, csv_path, task="derain")
