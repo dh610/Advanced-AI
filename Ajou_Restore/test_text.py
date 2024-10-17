@@ -79,6 +79,7 @@ if __name__ == '__main__':
 
     torch.manual_seed(0)
     torch.cuda.set_device(opt.cuda)
+    opt.batch_size = 7
 
     # Dataset and Model
     derain_set = DerainDehazeDataset(opt)
