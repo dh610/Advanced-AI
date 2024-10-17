@@ -12,7 +12,88 @@ from utils.image_io import save_image_tensor
 
 from text_net.model import AirNet
 
+import os
+import re
+import csv
+import subprocess
 
+def extract_info_from_filename(filename):
+    # epoch_%d_l1_%.4f_cl_%.2f.pth에서 epoch, l1_loss, contrast_loss 추출
+    match = re.match(r'epoch_(\d+)_l1_(\d+\.\d+)_cl_(\d+\.\d+)\.pth', filename)
+    if match:
+        epoch = int(match.group(1))
+        l1_loss = float(match.group(2))
+        contrast_loss = float(match.group(3))
+        return epoch, l1_loss, contrast_loss
+    return None, None, None
+
+def save_to_csv(csv_path, data):
+    with open(csv_path, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(['epoch', 'l1_loss', 'contrast_loss', 'psnr', 'ssim'])
+        for row in data:
+            writer.writerow(row)
+
+def test_and_save_results(net, dataset, ckpt_files, csv_path, task="derain"):
+    results = []
+    dataset.set_dataset(task)
+    testloader = DataLoader(dataset, batch_size=1, pin_memory=True, shuffle=False, num_workers=0)
+
+    for ckpt_file in ckpt_files:
+        # 파일에서 epoch, l1_loss, contrast_loss 정보 추출
+        epoch, l1_loss, contrast_loss = extract_info_from_filename(ckpt_file)
+        if epoch is None:
+            continue
+
+        # 모델 로드
+        net.load_state_dict(torch.load(ckpt_file, map_location=torch.device(opt.cuda)))
+        net.eval()
+
+        psnr = AverageMeter()
+        ssim = AverageMeter()
+
+        with torch.no_grad():
+            for ([degraded_name], degradation, degrad_patch, clean_patch, text_prompt) in tqdm(testloader):
+                degrad_patch, clean_patch = degrad_patch.cuda(), clean_patch.cuda()
+                restored = net(x_query=degrad_patch, x_key=degrad_patch, text_prompt=text_prompt)
+                temp_psnr, temp_ssim, N = compute_psnr_ssim(restored, clean_patch)
+                psnr.update(temp_psnr, N)
+                ssim.update(temp_ssim, N)
+
+        # 성능 결과 저장
+        print("l1_loss: %.4f, contrast_loss: %.2f, PSNR: %.2f, SSIM: %.4f" % (l1_loss, contrast_loss, psnr.avg, ssim.avg))
+        results.append([epoch, l1_loss, contrast_loss, psnr.avg, ssim.avg])
+    
+    # CSV 저장
+    save_to_csv(csv_path, results)
+    print(f"Results saved to {csv_path}")
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    # Input Parameters
+    parser.add_argument('--cuda', type=int, default=0)
+    parser.add_argument('--mode', type=int, default=1, help='0 for denoise, 1 for derain, 2 for dehaze, 3 for all-in-one')
+    parser.add_argument('--ckpt_path', type=str, default="ckpt/", help='checkpoint save path')
+    parser.add_argument('--output_csv', type=str, default="results.csv", help='path to save the result CSV file')
+    opt = parser.parse_args()
+
+    torch.manual_seed(0)
+    torch.cuda.set_device(opt.cuda)
+
+    # Dataset and Model
+    derain_set = DerainDehazeDataset(opt)
+    net = AirNet(opt).cuda()
+
+    # Checkpoint 파일 목록 가져오기
+    ckpt_files = [os.path.join(opt.ckpt_path, f) for f in os.listdir(opt.ckpt_path) if f.endswith('.pth')]
+    csv_path = 'result.csv'
+
+    # 성능 측정 및 CSV 저장
+    test_and_save_results(net, derain_set, ckpt_files, opt.output_csv, task="derain")
+
+#########################################################################
+
+'''
 def test_Denoise(net, dataset, sigma=15):
     output_path = opt.output_path + 'denoise/' + str(sigma) + '/'
     subprocess.check_output(['mkdir', '-p', output_path])
@@ -130,3 +211,4 @@ if __name__ == '__main__':
 
         print('Start testing SOTS...')
         test_Derain_Dehaze(net, derain_set, task="dehaze")
+'''
