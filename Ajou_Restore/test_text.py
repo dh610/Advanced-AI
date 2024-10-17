@@ -41,7 +41,7 @@ def test_and_save_results(net, dataset, ckpt_files, csv_path, task="derain"):
     dataset.set_dataset(task)
     testloader = DataLoader(dataset, batch_size=1, pin_memory=True, shuffle=False, num_workers=0)
 
-    for ckpt_file in ckpt_files:
+    for ckpt_file in tqdm(ckpt_files):
         # 파일에서 epoch, l1_loss, contrast_loss 정보 추출
         epoch, l1_loss, contrast_loss = extract_info_from_filename(ckpt_file)
         if epoch is None:
@@ -55,7 +55,7 @@ def test_and_save_results(net, dataset, ckpt_files, csv_path, task="derain"):
         ssim = AverageMeter()
 
         with torch.no_grad():
-            for ([degraded_name], degradation, degrad_patch, clean_patch, text_prompt) in tqdm(testloader):
+            for ([degraded_name], degradation, degrad_patch, clean_patch, text_prompt) in testloader:
                 degrad_patch, clean_patch = degrad_patch.cuda(), clean_patch.cuda()
                 restored = net(x_query=degrad_patch, x_key=degrad_patch, text_prompt=text_prompt)
                 temp_psnr, temp_ssim, N = compute_psnr_ssim(restored, clean_patch)
