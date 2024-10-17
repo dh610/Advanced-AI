@@ -73,8 +73,8 @@ if __name__ == '__main__':
     # Input Parameters
     parser.add_argument('--cuda', type=int, default=0)
     parser.add_argument('--mode', type=int, default=1, help='0 for denoise, 1 for derain, 2 for dehaze, 3 for all-in-one')
+    parser.add_argument('--derain_path', type=str, default="data/CDD-11_test_100/", help='save path of test raining images')
     parser.add_argument('--ckpt_path', type=str, default="ckpt/", help='checkpoint save path')
-    parser.add_argument('--output_csv', type=str, default="results.csv", help='path to save the result CSV file')
     opt = parser.parse_args()
 
     torch.manual_seed(0)
@@ -89,7 +89,7 @@ if __name__ == '__main__':
     csv_path = 'result.csv'
 
     # 성능 측정 및 CSV 저장
-    test_and_save_results(net, derain_set, ckpt_files, opt.output_csv, task="derain")
+    test_and_save_results(net, derain_set, ckpt_files, csv_path, task="derain")
 
 #########################################################################
 
