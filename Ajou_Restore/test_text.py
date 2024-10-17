@@ -17,9 +17,9 @@ import re
 import csv
 import subprocess
 
-def extract_info_from_filename(filename):
+def extract_info_from_filename(filepath):
+    filename = os.path.basename(filepath)
     # epoch_%d_l1_%.4f_cl_%.2f.pth에서 epoch, l1_loss, contrast_loss 추출
-    print(filename)
     match = re.match(r'epoch_(\d+)_l1_(\d+\.\d+)_cl_(\d+\.\d+)\.pth', filename)
     print(match)
     if match:
