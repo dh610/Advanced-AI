@@ -40,9 +40,9 @@ def test_and_save_results(net, dataset, ckpt_files, csv_path, task="derain"):
     testloader = DataLoader(dataset, batch_size=1, pin_memory=True, shuffle=False, num_workers=0)
 
     for ckpt_file in ckpt_files:
-        print(ckpt_file)
         # 파일에서 epoch, l1_loss, contrast_loss 정보 추출
         epoch, l1_loss, contrast_loss = extract_info_from_filename(ckpt_file)
+        print(epoch, l1_loss, contrast_loss)
         if epoch is None:
             continue
 
